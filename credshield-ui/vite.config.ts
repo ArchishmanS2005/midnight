@@ -13,10 +13,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@midnight-ntwrk/credshield-api': path.resolve(__dirname, '../api/src'),
-      '@midnight-ntwrk/credshield-contract': path.resolve(__dirname, '../contract/src'),
-      '@midnight-ntwrk/bboard-api': path.resolve(__dirname, '../api/src'),
-      '@midnight-ntwrk/bboard-contract': path.resolve(__dirname, '../contract/src'),
+      '@midnight-ntwrk/credshield-api': path.resolve(__dirname, '../api/src/index.ts'),
+      '@midnight-ntwrk/credshield-contract': path.resolve(__dirname, '../contract/src/index.ts'),
+      '@midnight-ntwrk/bboard-api': path.resolve(__dirname, '../api/src/index.ts'),
+      '@midnight-ntwrk/bboard-contract': path.resolve(__dirname, '../contract/src/index.ts'),
     },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.wasm'],
     mainFields: ['browser', 'module', 'main'],
@@ -77,6 +77,10 @@ export default defineConfig({
       '@midnight-ntwrk/onchain-runtime-v3',
       '@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm_bg.wasm',
       '@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm.js',
+      '@midnight-ntwrk/credshield-api',
+      '@midnight-ntwrk/credshield-contract',
+      '@midnight-ntwrk/bboard-api',
+      '@midnight-ntwrk/bboard-contract',
     ],
   },
   checks: {
