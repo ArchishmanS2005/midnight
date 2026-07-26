@@ -1,0 +1,56 @@
+// CredShield Verifiable Credential Contract for Midnight Blockchain
+// Privacy-preserving credential issuance, verification, and revocation platform
+// Powered by Compact ZK circuits
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export enum CredentialState {
+  UNINITIALIZED,
+  ACTIVE,
+  REVOKED
+}
+
+export ledger credentialState: CredentialState;
+export ledger credentialId: Bytes<32>;
+export ledger credentialMetadata: Maybe<Opaque<"string">>;
+export ledger issuerAuthority: Bytes<32>;
+export ledger totalIssued: Counter;
+export ledger totalVerified: Counter;
+export ledger sequence: Counter;
+
+constructor() {
+  credentialState = CredentialState.UNINITIALIZED;
+  credentialMetadata = none<Opaque<"string">>();
+  sequence.increment(1);
+}
+
+witness secretKey(): Bytes<32>;
+
+export circuit issueCredential(id: Bytes<32>, metadata: Opaque<"string">): [] {
+  assert(credentialState == CredentialState.UNINITIALIZED, "Credential is already initialized");
+  issuerAuthority = disclose(authorityPublicKey(secretKey(), sequence as Field as Bytes<32>));
+  credentialId = disclose(id);
+  credentialMetadata = disclose(some<Opaque<"string">>(metadata));
+  credentialState = CredentialState.ACTIVE;
+  totalIssued.increment(1);
+}
+
+export circuit verifyCredential(providedId: Bytes<32>): [] {
+  assert(credentialState == CredentialState.ACTIVE, "Credential is not active");
+  assert(providedId == credentialId, "Credential ID mismatch");
+  const pk = disclose(authorityPublicKey(secretKey(), sequence as Field as Bytes<32>));
+  totalVerified.increment(1);
+}
+
+export circuit revokeCredential(): [] {
+  assert(credentialState == CredentialState.ACTIVE, "Credential is not active");
+  assert(issuerAuthority == authorityPublicKey(secretKey(), sequence as Field as Bytes<32>), "Only authorized issuer can revoke");
+  credentialState = CredentialState.REVOKED;
+  sequence.increment(1);
+}
+
+export circuit authorityPublicKey(sk: Bytes<32>, sequence: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "credshield:pk:"), sequence, sk]);
+}
