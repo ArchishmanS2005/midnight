@@ -1,0 +1,44 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - 'dependencies'
+      - 'npm'
+
+  - package-ecosystem: "npm"
+    directory: "/contract"
+    schedule:
+      interval: "weekly"
+    labels:
+      - 'dependencies'
+      - 'npm'
+      - 'contract'
+
+  - package-ecosystem: "npm"
+    directory: "/credshield-cli"
+    schedule:
+      interval: "weekly"
+    labels:
+      - 'dependencies'
+      - 'npm'
+      - 'credshield-cli'
+
+  - package-ecosystem: "npm"
+    directory: "/credshield-ui"
+    schedule:
+      interval: "weekly"
+    labels:
+      - 'dependencies'
+      - 'npm'
+      - 'credshield-ui'
