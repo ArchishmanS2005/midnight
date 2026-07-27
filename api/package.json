@@ -1,0 +1,18 @@
+{
+  "name": "@midnight-ntwrk/credshield-api",
+  "version": "0.1.0",
+  "description": "CredShield Privacy-Preserving Verifiable Credentials API Layer",
+  "author": "IOG",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "rm -rf dist && tsc --project tsconfig.build.json",
+    "ci": "npm run typecheck && npm run lint && npm run build",
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}
