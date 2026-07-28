@@ -4,17 +4,38 @@
 
 ---
 
+## 🌐 Live Demo & Links
+
+| Resource | Link |
+|----------|------|
+| **Live Demo** | [https://midnight-nine-pi.vercel.app](https://midnight-nine-pi.vercel.app) |
+| **Demo Video** | [Google Drive — Full Walkthrough](https://drive.google.com/drive/folders/1Vlo_kcGJ7q2RhJv3ElzxwsvL9vEdzgxU?usp=sharing) |
+| **GitHub Repository** | [github.com/ArchishmanS2005/midnight](https://github.com/ArchishmanS2005/midnight) |
+| **Deployed Contract (Preprod)** | `0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5` |
+
+---
+
 ## 💡 Product Vision
 
-In traditional digital credential verification systems, verifying academic degrees, employment history, or professional certifications requires either exposing full personal identity payloads to third-party verifiers or relying on centralized verification APIs that track user activity. **CredShield** solves this by establishing a privacy-preserving credential verification protocol on the **Midnight Blockchain**. CredShield allows certified institutions to issue tamper-proof verifiable credentials while enabling holders to prove credential validity, ownership, and active state off-chain via **Compact Zero-Knowledge (ZK) circuits** without publicly disclosing personal keys or identity data.
+In traditional digital credential verification systems, verifying academic degrees, employment history, or professional certifications requires either exposing full personal identity payloads to third-party verifiers or relying on centralized verification APIs that track user activity. **CredShield** solves this by establishing a privacy-preserving credential verification protocol on the **Midnight Blockchain**.
+
+CredShield allows certified institutions to issue tamper-proof verifiable credentials while enabling holders to prove credential validity, ownership, and active state off-chain via **Compact Zero-Knowledge (ZK) circuits** without publicly disclosing personal keys or identity data.
+
+---
+
+## 🔐 Privacy Claim
+
+> **Observable Privacy Behavior**: When a credential holder executes `verifyCredential`, the ZK circuit proves they possess the correct `secretKey` by computing `authorityPublicKey(secretKey, sequence)` entirely within the local witness context. The proof is submitted on-chain and the `totalVerified` counter increments — but the **secret key value is never disclosed, transmitted, or stored on the ledger**. The verifier only sees the proof validity, not the underlying identity.
+
+This demonstrates **selective disclosure**: proving credential ownership without revealing the holder's secret key or raw identity metadata.
 
 ---
 
 ## 🎬 Demo Video
 
-> � **[Watch the CredShield Demo Video →](./docs/demo-video.mp4)**
+> 📹 **[Watch the CredShield Demo Video →](https://drive.google.com/drive/folders/1Vlo_kcGJ7q2RhJv3ElzxwsvL9vEdzgxU?usp=sharing)**
 
-*Full end-to-end walkthrough: local network setup, contract deployment, credential issuance, ZK verification, and revocation.*
+*Demonstrates: Lace wallet connect/disconnect, credential issuance circuit call, ZK verification proof generation, and on-chain state update.*
 
 ---
 
@@ -22,92 +43,77 @@ In traditional digital credential verification systems, verifying academic degre
 
 | Landing Page | Features Page |
 |---|---|
-| ![Landing](./docs/screenshots/credshield_landing.png) | ![Features](./docs/screenshots/credshield_features.png) |
+| ![Landing](./docs/screenshots/credshield_hero.png) | ![Features](./docs/screenshots/credshield_features.png) |
 
 | Architecture Page | Live Demo Page |
 |---|---|
 | ![Architecture](./docs/screenshots/credshield_architecture.png) | ![Demo](./docs/screenshots/credshield_demo.png) |
 
-| Wallet Connection | Credential Issued |
-|---|---|
-| ![Wallet](./docs/screenshots/credshield_wallet_connect.png) | ![Issued](./docs/screenshots/credshield_issued.png) |
+| About Page |
+|---|
+| ![About](./docs/screenshots/credshield_about.png) |
 
 ---
 
-## �🚀 Quick Start — Local Development (Undeployed Network)
+## ✅ Level 2 Submission Checklist
 
-CredShield runs on a fully local Midnight network with no external testnet dependencies. All services run in Docker.
+| Requirement | Status |
+|-------------|--------|
+| Lace wallet connect / disconnect implemented | ✅ DApp Connector API v4 (CAIP-372 UUID detection) |
+| Circuit called successfully from frontend | ✅ `issueCredential`, `verifyCredential`, `revokeCredential` |
+| Observable privacy behavior | ✅ Secret key proven in ZK without disclosure (see Privacy Claim above) |
+| Contract deployed to Preprod with verifiable address | ✅ `0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5` |
+| Minimum 8 meaningful commits | ✅ 10+ commits with conventional commit messages |
+| Public GitHub repository with README | ✅ [github.com/ArchishmanS2005/midnight](https://github.com/ArchishmanS2005/midnight) |
+| Live demo link | ✅ [midnight-nine-pi.vercel.app](https://midnight-nine-pi.vercel.app) |
+| Demo video: wallet connect + circuit call | ✅ [Google Drive](https://drive.google.com/drive/folders/1Vlo_kcGJ7q2RhJv3ElzxwsvL9vEdzgxU?usp=sharing) |
+
+---
+
+## 🚀 Quick Start — Local Development
 
 ### Prerequisites
 
-- **Node.js** >= 24.11.1 (use `nvm use 24`)
+- **Node.js** >= 24.11.1 (`nvm use 24`)
 - **Docker** and Docker Compose v2
-- **Compact Compiler** v0.5.1 (`compact --version`)
+- **Compact Compiler** v0.5.1
 - **Lace Wallet** browser extension (set to "Undeployed" network)
-- Access to Midnight npm registry (configured in `.npmrc`)
 
-### Step 1: Start the Local Midnight Network
+### Step 1: Start Local Midnight Network
 
 ```bash
 docker compose -f standalone.yml up -d
 ```
 
-This starts three services on fixed ports:
 | Service | Port | URL |
 |---------|------|-----|
 | Midnight Node | 9944 | `http://localhost:9944` |
 | Indexer (GraphQL + WS) | 8088 | `http://localhost:8088/api/v4/graphql` |
 | Proof Server | 6300 | `http://localhost:6300` |
 
-All services use the `undeployed` network ID with the `dev` node preset.
-
-### Step 2: Fund Wallet with NIGHT & DUST
+### Step 2: Fund Wallet
 
 ```bash
-# Install midnight wallet CLI
 npm install -g midnight-wallet-cli
-
-# Configure for undeployed network
 midnight config set network undeployed
-
-# Generate wallet and fund it
 midnight wallet generate credshield
 midnight airdrop 10000
-
-# Fund your Lace wallet address directly
-midnight airdrop 10000 <your_lace_address>
-
-# Register DUST (required for tx fees — takes ~5 min on fresh wallet)
-midnight dust register
+midnight dust register   # ~5 min on fresh wallet
 ```
 
-### Step 3: Compile the Compact Contract
+### Step 3: Compile & Build
 
 ```bash
-cd contract
-compact compile src/credshield.compact src/managed/credshield
-yarn build
-```
-
-### Step 4: Build API & CLI
-
-```bash
+cd contract && compact compile src/credshield.compact src/managed/credshield && yarn build
 cd ../api && yarn build
-cd ../credshield-cli && yarn build
+cd ../credshield-ui && yarn dev --host
 ```
 
-### Step 5: Launch the Web DApp
-
-```bash
-cd credshield-ui
-yarn dev --host
-```
-
-Open `http://localhost:5173` → Connect Lace Wallet (set to "Undeployed") → Issue & Verify Credentials.
+Open `http://localhost:5173` → Connect Lace (Undeployed network) → Issue & Verify.
 
 ---
 
-## 🔒 Public State vs. Private Witness Architecture
+## 🔒 Architecture: Public vs. Private State
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -122,16 +128,6 @@ Open `http://localhost:5173` → Connect Lace Wallet (set to "Undeployed") → I
 │ • totalVerified (Counter)          │ • Private State Storage            │
 └────────────────────────────────────┴────────────────────────────────────┘
 ```
-
-### Public State (On-Chain Ledger)
-- **`credentialState`**: Enum lifecycle (`UNINITIALIZED` → `ACTIVE` → `REVOKED`)
-- **`credentialId`**: 32-byte cryptographic identifier hash
-- **`issuerAuthority`**: `persistentHash(pad, sequence, secretKey)` commitment
-- **`totalIssued` & `totalVerified`**: On-chain counters
-
-### Private Witness (Local Client Memory)
-- **`secretKey`**: 32-byte secret key held strictly in local client memory
-- **ZK Circuit Computation**: `authorityPublicKey(sk, sequence)` computed within zero-knowledge — never exposed on-chain
 
 ---
 
@@ -171,27 +167,15 @@ export circuit revokeCredential(): [] {
 
 ---
 
-## 🌐 Local Network Services (Docker)
-
-| Service | Image | Port |
-|---------|-------|------|
-| Node | `midnightntwrk/midnight-node:0.22.3` | 9944 |
-| Indexer | `midnightntwrk/indexer-standalone:4.0.1` | 8088 |
-| Proof Server | `midnightntwrk/proof-server:8.0.3` | 6300 |
-
-Network ID: `undeployed` — genesis wallet pre-funded, no faucet needed.
-
----
-
 ## 🌟 Key Features
 
 - **Compact ZK Circuit Verification** — Off-chain proof generation, secret keys never leave local memory
-- **Local-First Development** — Full Midnight stack in Docker, no testnet dependency
-- **Lace Wallet Integration** — DApp Connector API v4 (CAIP-372 compatible, UUID-based wallet discovery)
-- **Issuer Authority & Revocation** — Cryptographic on-chain revocation by issuer only
+- **Lace Wallet Integration** — DApp Connector API v4, CAIP-372 UUID-based wallet discovery
+- **Local-First Development** — Full Midnight stack in Docker (node + indexer + proof server)
+- **Issuer Authority & Revocation** — On-chain cryptographic revocation by issuer only
 - **Selective Disclosure** — Prove credential validity without raw metadata exposure
 - **GSAP Scroll Animations** — Premium animated UI with scroll-triggered reveals
-- **Vercel Deployable** — Production build with static ZK key serving
+- **Vercel Deployed** — Production frontend at [midnight-nine-pi.vercel.app](https://midnight-nine-pi.vercel.app)
 
 ---
 
@@ -201,42 +185,11 @@ Network ID: `undeployed` — genesis wallet pre-funded, no faucet needed.
 credshield/
 ├── contract/              # Compact ZK smart contract & compiled circuits
 ├── api/                   # TypeScript API wrapper (CredShieldAPI)
-├── credshield-cli/        # Interactive CLI with standalone/undeployed modes
+├── credshield-cli/        # Interactive CLI (standalone/undeployed/preprod modes)
 ├── credshield-ui/         # React 19 + MUI 9 + GSAP + Vite 8 Web DApp
 ├── standalone.yml         # Docker Compose for local Midnight network
 ├── vercel.json            # Vercel deployment configuration
-└── docs/                  # Screenshots, video, documentation
-```
-
----
-
-## 📖 CLI Execution Guide
-
-```bash
-cd credshield-cli && yarn build
-
-# Local undeployed network (connects to Docker services)
-npm run undeployed
-
-# Or use standalone mode (spins up own containers)
-npm run standalone
-```
-
----
-
-## 🚢 Deployment
-
-### Vercel (Frontend Only)
-```bash
-vercel --prod
-```
-The `vercel.json` in root handles build commands, SPA routing, and static ZK key headers.
-
-### Full Stack (Local)
-```bash
-docker compose -f standalone.yml up -d   # Network
-cd credshield-ui && yarn dev --host       # Frontend
-midnight serve --network undeployed --approve-all  # Wallet connector
+└── docs/screenshots/      # UI screenshots
 ```
 
 ---
