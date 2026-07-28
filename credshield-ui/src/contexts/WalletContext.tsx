@@ -45,20 +45,16 @@ const detectWallet = (): InitialAPI | undefined => {
   if (typeof window === 'undefined' || !window.midnight) return undefined;
   const midObj = window.midnight as Record<string, unknown>;
 
-  // Check known Lace and 1AM Wallet keys
-  for (const key of ['mn_lace', 'lace', 'mn_1am', '1am', '1am-wallet', 'midnight', 'MidnightWallet']) {
-    const candidate = midObj[key];
-    if (candidate && typeof candidate === 'object' && 'connect' in candidate) {
-      return candidate as InitialAPI;
-    }
-  }
-
-  // Fallback: iterate all entries in window.midnight
-  for (const val of Object.values(midObj)) {
-    if (val && typeof val === 'object' && 'connect' in val) {
+  // DApp Connector API v4: wallets inject under window.midnight using UUID keys.
+  // Each value is an InitialAPI with { name, icon, connect, ... }
+  // We iterate all entries and return the first valid wallet found.
+  for (const [key, val] of Object.entries(midObj)) {
+    if (val && typeof val === 'object' && 'connect' in val && typeof (val as any).connect === 'function') {
+      console.log(`[CredShield] Detected wallet "${(val as any).name ?? key}" under key "${key}"`);
       return val as InitialAPI;
     }
   }
+
   return undefined;
 };
 
@@ -78,6 +74,11 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   const connect = useCallback(async () => {
     setState((s) => ({ ...s, status: 'detecting', errorMessage: null }));
+
+    // Debug: log what's available in window.midnight
+    if (typeof window !== 'undefined' && window.midnight) {
+      console.log('[CredShield] window.midnight keys:', Object.keys(window.midnight as object));
+    }
 
     let wallet: InitialAPI | undefined;
     for (let i = 0; i < 25; i++) {
