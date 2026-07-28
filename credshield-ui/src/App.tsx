@@ -5,6 +5,7 @@ import Landing from './pages/Landing';
 import Features from './pages/Features';
 import Architecture from './pages/Architecture';
 import Demo from './pages/Demo';
+import About from './pages/About';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/features" element={<Features />} />
           <Route path="/architecture" element={<Architecture />} />
           <Route path="/demo" element={<Demo />} />
+          <Route path="/about" element={<About />} />
         </Route>
       </Routes>
     </BrowserRouter>

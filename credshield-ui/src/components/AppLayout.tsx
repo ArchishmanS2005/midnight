@@ -13,6 +13,7 @@ export default function AppLayout() {
     { to: '/features', label: 'Features' },
     { to: '/architecture', label: 'Architecture' },
     { to: '/demo', label: 'Live Demo' },
+    { to: '/about', label: 'About' },
   ];
 
   const isConnected = wallet.status === 'connected';
@@ -59,8 +60,8 @@ export default function AppLayout() {
                   <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '-0.02em', color: '#ffffff', lineHeight: 1.1 }}>
                     CredShield
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#a1a1aa', fontWeight: 600, letterSpacing: '0.06em', fontSize: '0.65rem' }}>
-                    MIDNIGHT ZK VC PROTOCOL
+                  <Typography variant="caption" sx={{ color: '#a1a1aa', fontWeight: 600, letterSpacing: '0.06em', fontSize: '0.6rem' }}>
+                    MIDNIGHT ZK VC • LOCAL NETWORK
                   </Typography>
                 </Box>
               </Link>
@@ -154,7 +155,7 @@ export default function AppLayout() {
                 CredShield Protocol
               </Typography>
               <Typography variant="caption" sx={{ color: '#71717a' }}>
-                • Built on Midnight Blockchain Preprod Testnet
+                • Local Undeployed Network • Docker Standalone
               </Typography>
             </Stack>
 
