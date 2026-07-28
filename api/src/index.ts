@@ -7,13 +7,12 @@ import {
   type CredShieldContract,
   credShieldPrivateStateKey,
 } from './common-types.js';
-import * as CredShield from '../../contract/src/index.js';
-import { CompiledCredShieldContract } from '../../contract/src/index.js';
+import * as CredShield from '@midnight-ntwrk/credshield-contract';
+import { CompiledCredShieldContract, CredShieldPrivateState, createCredShieldPrivateState } from '@midnight-ntwrk/credshield-contract';
 import * as utils from './utils/index.js';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { combineLatest, map, tap, from, type Observable } from 'rxjs';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
-import { CredShieldPrivateState, createCredShieldPrivateState } from '../../contract/src/witnesses.js';
 
 export interface DeployedCredShieldAPI {
   readonly deployedContractAddress: ContractAddress;

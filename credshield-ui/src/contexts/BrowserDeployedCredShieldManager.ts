@@ -64,6 +64,34 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
 
   retry(contractAddress?: ContractAddress): Observable<CredShieldDeployment> {
     this.#initializedProviders = undefined;
+    const normalizedAddr = contractAddress
+      ? (formatContractAddress(contractAddress) as ContractAddress)
+      : undefined;
+    const deployments = this.#deploymentsSubject.value;
+
+    // Find any existing deployment (deployed OR failed) to retry in-place
+    const existing = deployments.find((d) => {
+      if (d.value.status === 'deployed' && d.value.api.deployedContractAddress === normalizedAddr) return true;
+      if (d.value.status === 'failed') return true;
+      if (d.value.status === 'in-progress') return true;
+      return false;
+    });
+
+    if (existing) {
+      // If it's already deployed and matches, just return it
+      if (existing.value.status === 'deployed') return existing;
+
+      // Re-attempt the failed/in-progress deployment in-place
+      existing.next({ status: 'in-progress' });
+      if (normalizedAddr) {
+        void this.joinDeployment(existing, normalizedAddr);
+      } else {
+        void this.deployDeployment(existing);
+      }
+      return existing;
+    }
+
+    // Nothing to retry — fall through to resolve() which creates a new one
     return this.resolve(contractAddress);
   }
 
@@ -72,15 +100,20 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
       ? (formatContractAddress(contractAddress) as ContractAddress)
       : undefined;
     const deployments = this.#deploymentsSubject.value;
-    let deployment = deployments.find(
-      (d) => d.value.status === 'deployed' && d.value.api.deployedContractAddress === normalizedAddr,
-    );
 
-    if (deployment) {
-      return deployment;
+    // Check for any existing deployment matching this address (any status)
+    const existing = deployments.find((d) => {
+      if (d.value.status === 'deployed' && d.value.api.deployedContractAddress === normalizedAddr) return true;
+      // For non-addressed deploys (new contract), match any in-progress
+      if (!normalizedAddr && (d.value.status === 'in-progress')) return true;
+      return false;
+    });
+
+    if (existing) {
+      return existing;
     }
 
-    deployment = new BehaviorSubject<CredShieldDeployment>({
+    const deployment = new BehaviorSubject<CredShieldDeployment>({
       status: 'in-progress',
     });
 
@@ -117,6 +150,7 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
         api,
       });
     } catch (error: unknown) {
+      console.error('CREDSHIELD DEPLOYMENT ERROR:', error);
       deployment.next({
         status: 'failed',
         error: error instanceof Error ? error : new Error(String(error)),
@@ -137,6 +171,7 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
         api,
       });
     } catch (error: unknown) {
+      console.error('CREDSHIELD DEPLOYMENT ERROR:', error);
       deployment.next({
         status: 'failed',
         error: error instanceof Error ? error : new Error(String(error)),
@@ -144,6 +179,8 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
     }
   }
 }
+
+import { setNetworkId, type NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
 const initializeProviders = async (
   logger: Logger,
@@ -161,6 +198,9 @@ const initializeProviders = async (
   ]);
 
   logger.info({ config }, 'Wallet configuration retrieved');
+
+  const targetNetworkId = (config.networkId || import.meta.env.VITE_NETWORK_ID || 'preprod') as NetworkId;
+  setNetworkId(targetNetworkId);
 
   if (!config.proverServerUri) {
     throw new Error(

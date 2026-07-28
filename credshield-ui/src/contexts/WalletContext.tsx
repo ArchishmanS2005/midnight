@@ -36,7 +36,10 @@ export interface WalletContextValue extends WalletState {
 
 const WalletContext = createContext<WalletContextValue | undefined>(undefined);
 
+import { setNetworkId, type NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+
 const NETWORK_ID = (import.meta.env.VITE_NETWORK_ID as string | undefined) ?? 'preprod';
+setNetworkId(NETWORK_ID as NetworkId);
 
 const detectWallet = (): InitialAPI | undefined => {
   if (typeof window === 'undefined' || !window.midnight) return undefined;
@@ -121,6 +124,7 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
         connectedAPI,
       });
     } catch (err: unknown) {
+      console.error('WALLET CONNECT ERROR:', err);
       const msg = err instanceof Error ? err.message : 'Failed to authorize wallet connection.';
       setState((s) => ({
         ...s,

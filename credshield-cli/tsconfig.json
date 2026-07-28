@@ -1,6 +1,7 @@
 {
   "include": ["src/**/*.ts"],
   "compilerOptions": {
+    "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
     "lib": ["ESNext"],
@@ -18,8 +19,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@midnight-ntwrk/credshield-api": ["../api/src/index.ts"],
-      "@midnight-ntwrk/credshield-contract": ["../contract/src/index.ts"]
+      "@midnight-ntwrk/credshield-api": ["../api/dist/index.d.ts"],
+      "@midnight-ntwrk/credshield-contract": ["../contract/dist/index.d.ts"]
     }
   }
 }
