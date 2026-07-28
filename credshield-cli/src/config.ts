@@ -43,6 +43,40 @@ export class StandaloneConfig implements Config {
   generateDust = false;
 }
 
+export class UndeployedStandaloneConfig implements Config {
+  getEnvironment(logger: Logger): TestEnvironment {
+    setNetworkId('undeployed');
+    return new UndeployedTestEnvironment(logger);
+  }
+  privateStateStoreName = 'credshield-private-state';
+  logDir = path.resolve(currentDir, '..', 'logs', 'undeployed', `${new Date().toISOString()}.log`);
+  zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'credshield');
+  generateDust = false;
+}
+
+export class UndeployedTestEnvironment extends RemoteTestEnvironment {
+  constructor(logger: Logger) {
+    super(logger);
+  }
+
+  private getProofServerUrl(): string {
+    return 'http://127.0.0.1:6300';
+  }
+
+  getEnvironmentConfiguration(): EnvironmentConfiguration {
+    return {
+      walletNetworkId: 'undeployed',
+      networkId: 'undeployed',
+      indexer: 'http://127.0.0.1:8088/api/v4/graphql',
+      indexerWS: 'ws://127.0.0.1:8088/api/v4/graphql/ws',
+      node: 'http://127.0.0.1:9944',
+      nodeWS: 'ws://127.0.0.1:9944',
+      faucet: '',
+      proofServer: this.getProofServerUrl(),
+    };
+  }
+}
+
 export class PreviewRemoteConfig implements Config {
   getEnvironment(logger: Logger): TestEnvironment {
     setNetworkId('preview');

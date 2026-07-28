@@ -38,7 +38,7 @@ const WalletContext = createContext<WalletContextValue | undefined>(undefined);
 
 import { setNetworkId, type NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
-const NETWORK_ID = (import.meta.env.VITE_NETWORK_ID as string | undefined) ?? 'preprod';
+const NETWORK_ID = (import.meta.env.VITE_NETWORK_ID as string | undefined) ?? 'undeployed';
 setNetworkId(NETWORK_ID as NetworkId);
 
 const detectWallet = (): InitialAPI | undefined => {

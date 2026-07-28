@@ -199,7 +199,7 @@ const initializeProviders = async (
 
   logger.info({ config }, 'Wallet configuration retrieved');
 
-  const targetNetworkId = (config.networkId || import.meta.env.VITE_NETWORK_ID || 'preprod') as NetworkId;
+  const targetNetworkId = (config.networkId || import.meta.env.VITE_NETWORK_ID || 'undeployed') as NetworkId;
   setNetworkId(targetNetworkId);
 
   if (!config.proverServerUri) {

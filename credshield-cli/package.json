@@ -12,6 +12,7 @@
     "lint": "eslint src",
     "prepack": "npm run build",
     "standalone": "node dist/launcher/standalone.js",
+    "undeployed": "node dist/launcher/undeployed.js",
     "preview-remote": "node dist/launcher/preview.js",
     "preprod-remote": "node dist/launcher/preprod.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
