@@ -4,61 +4,110 @@
 
 ---
 
-## 💡 Initial Product Idea & Vision
+## 💡 Product Vision
 
 In traditional digital credential verification systems, verifying academic degrees, employment history, or professional certifications requires either exposing full personal identity payloads to third-party verifiers or relying on centralized verification APIs that track user activity. **CredShield** solves this by establishing a privacy-preserving credential verification protocol on the **Midnight Blockchain**. CredShield allows certified institutions to issue tamper-proof verifiable credentials while enabling holders to prove credential validity, ownership, and active state off-chain via **Compact Zero-Knowledge (ZK) circuits** without publicly disclosing personal keys or identity data.
 
 ---
 
-## 🚀 How to Deploy Your Own Smart Contract
+## 🎬 Demo Video
 
-Deploying a custom CredShield smart contract to the **Midnight Preprod Testnet** involves a simple 4-step pipeline:
+> � **[Watch the CredShield Demo Video →](./docs/demo-video.mp4)**
 
-### Step 1: Compile the Compact Contract & Circuits
-Ensure you have the Compact Compiler (`compact 0.5.1`) installed. Compile the contract source code into ZK proving keys and TypeScript bindings:
+*Full end-to-end walkthrough: local network setup, contract deployment, credential issuance, ZK verification, and revocation.*
+
+---
+
+## 🖼️ UI Screenshots
+
+| Landing Page | Features Page |
+|---|---|
+| ![Landing](./docs/screenshots/credshield_landing.png) | ![Features](./docs/screenshots/credshield_features.png) |
+
+| Architecture Page | Live Demo Page |
+|---|---|
+| ![Architecture](./docs/screenshots/credshield_architecture.png) | ![Demo](./docs/screenshots/credshield_demo.png) |
+
+| Wallet Connection | Credential Issued |
+|---|---|
+| ![Wallet](./docs/screenshots/credshield_wallet_connect.png) | ![Issued](./docs/screenshots/credshield_issued.png) |
+
+---
+
+## �🚀 Quick Start — Local Development (Undeployed Network)
+
+CredShield runs on a fully local Midnight network with no external testnet dependencies. All services run in Docker.
+
+### Prerequisites
+
+- **Node.js** >= 24.11.1 (use `nvm use 24`)
+- **Docker** and Docker Compose v2
+- **Compact Compiler** v0.5.1 (`compact --version`)
+- **Lace Wallet** browser extension (set to "Undeployed" network)
+- Access to Midnight npm registry (configured in `.npmrc`)
+
+### Step 1: Start the Local Midnight Network
+
+```bash
+docker compose -f standalone.yml up -d
+```
+
+This starts three services on fixed ports:
+| Service | Port | URL |
+|---------|------|-----|
+| Midnight Node | 9944 | `http://localhost:9944` |
+| Indexer (GraphQL + WS) | 8088 | `http://localhost:8088/api/v4/graphql` |
+| Proof Server | 6300 | `http://localhost:6300` |
+
+All services use the `undeployed` network ID with the `dev` node preset.
+
+### Step 2: Fund Wallet with NIGHT & DUST
+
+```bash
+# Install midnight wallet CLI
+npm install -g midnight-wallet-cli
+
+# Configure for undeployed network
+midnight config set network undeployed
+
+# Generate wallet and fund it
+midnight wallet generate credshield
+midnight airdrop 10000
+
+# Fund your Lace wallet address directly
+midnight airdrop 10000 <your_lace_address>
+
+# Register DUST (required for tx fees — takes ~5 min on fresh wallet)
+midnight dust register
+```
+
+### Step 3: Compile the Compact Contract
 
 ```bash
 cd contract
-yarn compact # Compiles src/credshield.compact into ZKIR & WASM proving keys
-yarn build   # Builds @midnight-ntwrk/credshield-contract package
+compact compile src/credshield.compact src/managed/credshield
+yarn build
 ```
 
-### Step 2: Build API & Workspaces
-Compile the TypeScript API wrapper and CLI launcher:
+### Step 4: Build API & CLI
 
 ```bash
 cd ../api && yarn build
 cd ../credshield-cli && yarn build
 ```
 
-### Step 3: Fund Wallet with Testnet tNIGHT & tDUST
-Every contract deployment transaction on Midnight requires testnet gas fee balancing (`tDUST`/`tNIGHT` tokens):
-- **Web DApp UI**: Connect **Lace Wallet** or **1AM Wallet** (configured for Midnight Preprod) with pre-funded testnet tokens.
-- **CLI Runner**: The CLI runner automatically prompts to build/load a seed phrase wallet and registers dust generation on-chain via `generateDust()`.
+### Step 5: Launch the Web DApp
 
-### Step 4: Deploy Contract Instance
-Deploy using either interface:
-
-#### Option A: Deploy via Web DApp UI
-1. Launch dev server: `cd credshield-ui && yarn dev`
-2. Open `http://localhost:5173`
-3. Connect Lace / 1AM Wallet.
-4. Click **`+ Issue Credential Instance`**. Authorize the deployment transaction in your wallet.
-
-#### Option B: Deploy via Interactive CLI
 ```bash
-cd credshield-cli
-npm run preprod-remote
+cd credshield-ui
+yarn dev --host
 ```
-1. Select Option `1. Build a fresh wallet` or `2. Build wallet from seed`.
-2. Select Option `1. Deploy a new CredShield Verifiable Credential Contract`.
-3. The CLI will deploy the contract and print the 32-byte contract address.
+
+Open `http://localhost:5173` → Connect Lace Wallet (set to "Undeployed") → Issue & Verify Credentials.
 
 ---
 
 ## 🔒 Public State vs. Private Witness Architecture
-
-CredShield utilizes Midnight's hybrid ledger state model to guarantee complete privacy while maintaining public verifiability.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -69,125 +118,135 @@ CredShield utilizes Midnight's hybrid ledger state model to guarantee complete p
 │ • credentialState (ACTIVE/REVOKED) │ • secretKey (Bytes<32> Local Key)  │
 │ • credentialId (Bytes<32> Hash)    │ • Un-blinded Holder Identity       │
 │ • issuerAuthority (Bytes<32> PK)   │ • ZK Witness Context & Nonces      │
-│ • totalIssued (Counter)            │ • Off-Chain Proof Generation      │
+│ • totalIssued (Counter)            │ • Off-Chain Proof Generation       │
 │ • totalVerified (Counter)          │ • Private State Storage            │
 └────────────────────────────────────┴────────────────────────────────────┘
 ```
 
-### 1. Public State (On-Chain Ledger)
-- **`credentialState`**: Enum (`UNINITIALIZED`, `ACTIVE`, `REVOKED`) reflecting current credential status.
-- **`credentialId`**: 32-byte cryptographic identifier hash.
-- **`issuerAuthority`**: Hashed public key commitment of the issuing authority.
-- **`totalIssued` & `totalVerified`**: On-chain counters tracking global credential issuance and successful ZK verifications.
+### Public State (On-Chain Ledger)
+- **`credentialState`**: Enum lifecycle (`UNINITIALIZED` → `ACTIVE` → `REVOKED`)
+- **`credentialId`**: 32-byte cryptographic identifier hash
+- **`issuerAuthority`**: `persistentHash(pad, sequence, secretKey)` commitment
+- **`totalIssued` & `totalVerified`**: On-chain counters
 
-### 2. Private Witness (Local Client Memory)
-- **`secretKey`**: 32-byte secret key held strictly in local client memory (`WitnessContext`).
-- **ZK Circuit Computation**: Circuits (`verifyCredential`, `issueCredential`) compute `authorityPublicKey(sk, sequence)` within zero-knowledge proofs off-chain. The secret key is never published or exposed on-chain.
+### Private Witness (Local Client Memory)
+- **`secretKey`**: 32-byte secret key held strictly in local client memory
+- **ZK Circuit Computation**: `authorityPublicKey(sk, sequence)` computed within zero-knowledge — never exposed on-chain
 
 ---
 
-## 🛠️ Compact Smart Contract Compilation
+## 🛠️ Compact Smart Contract (3 ZK Circuits)
 
-### Successful Circuit Compilation Output
-```text
-$ cd contract
-$ compact compile src/credshield.compact ./src/managed/credshield
+```compact
+pragma language_version 0.23;
 
-Compiling 3 circuits:
-  ✓ issueCredential (pure: false, proof: true)
-  ✓ verifyCredential (pure: false, proof: true)
-  ✓ revokeCredential (pure: false, proof: true)
+export enum CredentialState { UNINITIALIZED, ACTIVE, REVOKED }
 
-Generated WASM & ZKIR artifacts in contract/src/managed/credshield/
+export ledger credentialState: CredentialState;
+export ledger credentialId: Bytes<32>;
+export ledger issuerAuthority: Bytes<32>;
+export ledger totalIssued: Counter;
+export ledger totalVerified: Counter;
+
+witness secretKey(): Bytes<32>;
+
+export circuit issueCredential(id: Bytes<32>, metadata: Opaque<"string">): [] {
+  issuerAuthority = disclose(authorityPublicKey(secretKey(), sequence as Field as Bytes<32>));
+  credentialId = disclose(id);
+  credentialState = CredentialState.ACTIVE;
+  totalIssued.increment(1);
+}
+
+export circuit verifyCredential(providedId: Bytes<32>): [] {
+  assert(credentialState == CredentialState.ACTIVE, "Credential not active");
+  assert(providedId == credentialId, "Credential ID mismatch");
+  totalVerified.increment(1);
+}
+
+export circuit revokeCredential(): [] {
+  assert(issuerAuthority == authorityPublicKey(secretKey(), sequence as Field as Bytes<32>));
+  credentialState = CredentialState.REVOKED;
+}
 ```
 
-![CredShield Circuits & Pillars](./docs/screenshots/credshield_pillars.png)
-
 ---
 
-## 🌐 Deployed Contract Address & Testnet Information
+## 🌐 Local Network Services (Docker)
 
-- **Network**: Midnight Preprod Testnet
-- **Protocol**: CredShield Zero-Knowledge Verifiable Credentials
-- **Deployed Contract Address**:
-  ```text
-  0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5
-  ```
-- **ZkConfig Prover Path**: Served dynamically via `FetchZkConfigProvider` (`/keys` and `/zkir`).
+| Service | Image | Port |
+|---------|-------|------|
+| Node | `midnightntwrk/midnight-node:0.22.3` | 9944 |
+| Indexer | `midnightntwrk/indexer-standalone:4.0.1` | 8088 |
+| Proof Server | `midnightntwrk/proof-server:8.0.3` | 6300 |
+
+Network ID: `undeployed` — genesis wallet pre-funded, no faucet needed.
 
 ---
 
 ## 🌟 Key Features
 
-- **Compact ZK Circuit Verification**: Proves credential validity and holder secret key ownership off-chain. Secret keys never leave local client memory.
-- **Lace & 1AM Wallet Integration**: Native support for Midnight DApp Connector (`window.midnight`) enabling 1-click authorization, proof delegation, and transaction balancing on Midnight Preprod testnet.
-- **Issuer Authority & On-Chain Revocation**: Issuers maintain cryptographic authority to revoke credentials on-chain while keeping historical holder verification completely un-linkable.
-- **Selective Disclosure**: Allows credential holders to demonstrate degree completion or badge eligibility without exposing underlying raw metadata payloads.
-- **Full-Stack Monorepo**: Complete end-to-end integration including Compact contract circuits, TypeScript API bindings, an interactive CLI runner, and an OLED dark monochrome React Web DApp.
+- **Compact ZK Circuit Verification** — Off-chain proof generation, secret keys never leave local memory
+- **Local-First Development** — Full Midnight stack in Docker, no testnet dependency
+- **Lace Wallet Integration** — DApp Connector API v4 (CAIP-372 compatible, UUID-based wallet discovery)
+- **Issuer Authority & Revocation** — Cryptographic on-chain revocation by issuer only
+- **Selective Disclosure** — Prove credential validity without raw metadata exposure
+- **GSAP Scroll Animations** — Premium animated UI with scroll-triggered reveals
+- **Vercel Deployable** — Production build with static ZK key serving
 
 ---
 
-## 📁 Monorepo Workspace Structure
+## 📁 Monorepo Structure
 
 ```
 credshield/
-├── contract/              # Compact smart contract, ZK circuits & generated bindings
-│   ├── src/credshield.compact
-│   ├── src/managed/credshield/ (compiled ZK keys & TypeScript index)
-│   └── package.json
-├── api/                   # High-level TypeScript API wrapper (CredShieldAPI)
-│   ├── src/index.ts
-│   ├── src/common-types.ts
-│   └── package.json
-├── credshield-cli/        # Interactive command-line launcher & test environment
-│   ├── src/index.ts
-│   └── package.json
-├── credshield-ui/         # Modern React 19 + Tailwind/MUI web application
-│   ├── src/contexts/WalletContext.tsx
-│   ├── src/components/CredShieldCard.tsx
-│   ├── public/keys/ & public/zkir/
-│   └── package.json
-└── docs/screenshots/     # UI screenshots & visual artifacts
+├── contract/              # Compact ZK smart contract & compiled circuits
+├── api/                   # TypeScript API wrapper (CredShieldAPI)
+├── credshield-cli/        # Interactive CLI with standalone/undeployed modes
+├── credshield-ui/         # React 19 + MUI 9 + GSAP + Vite 8 Web DApp
+├── standalone.yml         # Docker Compose for local Midnight network
+├── vercel.json            # Vercel deployment configuration
+└── docs/                  # Screenshots, video, documentation
 ```
 
 ---
 
-## 📖 Interactive CLI Execution Guide
-
-You can also run the interactive CLI interface to issue and verify credentials directly from your terminal:
+## 📖 CLI Execution Guide
 
 ```bash
-cd credshield-cli
-yarn build
-npm run preprod-remote # Connects to Midnight Preprod testnet
+cd credshield-cli && yarn build
+
+# Local undeployed network (connects to Docker services)
+npm run undeployed
+
+# Or use standalone mode (spins up own containers)
+npm run standalone
 ```
 
-### CLI Menu Options:
-1. **Issue a Verifiable Credential**
-2. **Verify a Credential Privately (Generate ZK Proof)**
-3. **Revoke a Credential (Issuer Only)**
-4. **Display On-Chain Ledger State**
-5. **Display Local Private State**
+---
+
+## 🚢 Deployment
+
+### Vercel (Frontend Only)
+```bash
+vercel --prod
+```
+The `vercel.json` in root handles build commands, SPA routing, and static ZK key headers.
+
+### Full Stack (Local)
+```bash
+docker compose -f standalone.yml up -d   # Network
+cd credshield-ui && yarn dev --host       # Frontend
+midnight serve --network undeployed --approve-all  # Wallet connector
+```
 
 ---
 
 ## 📜 Commit History
 
-Authored by **ArchishmanS2005** (`archishmansarkar94@gmail.com`):
-
-1. `feat(scaffold): initialize Midnight CredShield platform monorepo`
-2. `feat(contract): implement CredShield Compact smart contract and circuits`
-3. `feat(api): implement CredShieldAPI typescript bindings and providers`
-4. `feat(cli): transform interactive CLI runner for CredShield issuance and ZK verification`
-5. `feat(ui): add Lace/1AM WalletContext, CredShieldCard and monochrome dark theme`
-6. `feat(ui): implement editorial luxury Black and Old Gold design`
-7. `feat(ui): update hero headline for credential verifier platform`
-8. `docs: add comprehensive contract deployment guide section`
-9. `docs: update architecture diagrams and witness state specifications`
-10. `docs: update UI screenshot artifacts for luxury dark theme`
+Authored by **ArchishmanS2005** (`archishmansarkar94@gmail.com`)
 
 ---
 
 ## 🛡️ License
 
-MIT License. Developed by **ArchishmanS2005** for the Midnight Rise In Level 1 Builder Challenge.
+MIT License. Developed by **ArchishmanS2005** for the Midnight Rise In Level 2 Builder Challenge.

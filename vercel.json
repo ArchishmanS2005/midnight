@@ -1,5 +1,6 @@
 {
-  "buildCommand": "yarn install && cd contract && yarn build && cd ../credshield-ui && yarn build",
+  "version": 2,
+  "buildCommand": "cd credshield-ui && yarn build",
   "outputDirectory": "credshield-ui/dist",
   "installCommand": "yarn install",
   "framework": "vite",
