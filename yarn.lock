@@ -1522,7 +1522,7 @@
   resolved "https://registry.yarnpkg.com/@rolldown/binding-win32-x64-msvc/-/binding-win32-x64-msvc-1.1.5.tgz#3377c8de0e56a8857f11217561147090e874cb46"
   integrity sha512-tTZuDBPw85tEN5PQi1pnEBzDy0Z49HtScLAbD5t6hyeU92A95pRWaSMw1GZZi/RwgSgUIl0xrSlXIT/9QzvYSA==
 
-"@rolldown/pluginutils@^1.0.0":
+"@rolldown/pluginutils@^1.0.0", "@rolldown/pluginutils@^1.0.1":
   version "1.0.1"
   resolved "https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.0.1.tgz"
   integrity sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==
@@ -2161,12 +2161,12 @@
     "@typescript-eslint/types" "8.65.0"
     eslint-visitor-keys "^5.0.0"
 
-"@vitejs/plugin-react@^6.0.2":
-  version "6.0.2"
-  resolved "https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-6.0.2.tgz"
-  integrity sha512-DlSMqo4WhThw4vB8Mpn0Woe9J+Jfq1geJ61AKW0QEgLzGMNwtIMdxbDUzLxcun8W7NbJO0e2Jg/Nxm3cCSVzzg==
+"@vitejs/plugin-react@^6.0.5":
+  version "6.0.5"
+  resolved "https://registry.yarnpkg.com/@vitejs/plugin-react/-/plugin-react-6.0.5.tgz#48ee7951093ff9054952cff9d64e874355cde372"
+  integrity sha512-BOVzne/NL162sMdResB25mUv+vWMF5NoAjNf09TeGlE7ZpszZWSD3winycicLJw72yeVsoCn/2kOhEuCvEShMA==
   dependencies:
-    "@rolldown/pluginutils" "^1.0.0"
+    "@rolldown/pluginutils" "^1.0.1"
 
 "@vitest/expect@4.1.10":
   version "4.1.10"
