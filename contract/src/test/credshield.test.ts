@@ -11,6 +11,17 @@ const toHex = (bytes: Uint8Array) =>
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 
+// credentialMetadata is Maybe<Opaque<"string">> → { is_some: true, value: "..." }
+const extractMetadata = (meta: unknown): string | null => {
+  if (!meta) return null;
+  if (typeof meta === 'string') return meta;
+  if (typeof meta === 'object' && meta !== null && 'is_some' in meta) {
+    const m = meta as { is_some: boolean; value?: string };
+    return m.is_some ? (m.value ?? null) : null;
+  }
+  return null;
+};
+
 // ─────────────────────────────────────────────────────────────
 // Test Suite
 // ─────────────────────────────────────────────────────────────
@@ -40,8 +51,8 @@ describe('CredShield ZK Circuit Tests', () => {
     expect(ledger.totalVerified).toBe(0n);
     // credentialId on ledger must match the provided id
     expect(toHex(ledger.credentialId)).toBe(toHex(credId));
-    // metadata stored on ledger
-    expect(ledger.credentialMetadata).toBe(metadata);
+    // metadata stored on ledger (unwrap Maybe<Opaque<"string">>)
+    expect(extractMetadata(ledger.credentialMetadata)).toBe(metadata);
     // issuerAuthority must be set (non-zero)
     expect(ledger.issuerAuthority).toBeTruthy();
     expect(ledger.issuerAuthority.length).toBeGreaterThan(0);
@@ -98,7 +109,7 @@ describe('CredShield ZK Circuit Tests', () => {
     const ledgerJson = JSON.stringify({
       credentialState: afterIssue.credentialState,
       credentialId: toHex(afterIssue.credentialId),
-      credentialMetadata: afterIssue.credentialMetadata,
+      credentialMetadata: JSON.stringify(afterIssue.credentialMetadata),
       issuerAuthority: toHex(afterIssue.issuerAuthority),
       totalIssued: afterIssue.totalIssued.toString(),
       totalVerified: afterIssue.totalVerified.toString(),
