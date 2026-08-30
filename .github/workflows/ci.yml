@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build, Compile & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Compact compiler
+        run: |
+          npm install -g @midnight-ntwrk/compact-compiler 2>/dev/null || true
+          # Fallback: try npx compact if global install fails
+          compact --version 2>/dev/null && echo "compact available" || echo "compact not yet installed, will use npx"
+
+      - name: Install root dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Compile Compact contract (ZK circuits)
+        working-directory: contract
+        run: |
+          npx --yes compact compile src/credshield.compact ./src/managed/credshield || \
+          npm run compact
+
+      - name: Build & test contract
+        working-directory: contract
+        run: |
+          npm run typecheck
+          npm run lint
+          npm run build
+          npm run test
+
+      - name: Build API
+        working-directory: api
+        run: npm run ci
+
+      - name: Build CredShield CLI
+        working-directory: credshield-cli
+        run: npm run ci
+
+      - name: Build CredShield UI
+        working-directory: credshield-ui
+        run: npm run ci
