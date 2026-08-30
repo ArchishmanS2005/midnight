@@ -121,6 +121,7 @@ export class CredShieldAPI implements DeployedCredShieldAPI {
       compiledContract: CompiledCredShieldContract,
       privateStateId: credShieldPrivateStateKey,
       initialPrivateState: createCredShieldPrivateState(utils.randomBytes(32)),
+      args: [],
     });
 
     logger?.trace({
