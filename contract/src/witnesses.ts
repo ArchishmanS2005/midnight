@@ -5,7 +5,9 @@ export type CredShieldPrivateState = {
   readonly secretKey: Uint8Array;
 };
 
-export const createCredShieldPrivateState = (secretKey: Uint8Array): CredShieldPrivateState => ({
+export const createCredShieldPrivateState = (
+  secretKey: Uint8Array,
+): CredShieldPrivateState => ({
   secretKey,
 });
 

@@ -1,21 +1,21 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { CredShieldSimulator } from './credshield-simulator.js';
-import { CredentialState } from '../managed/credshield/contract/index.js';
-import { randomBytes } from './utils.js';
+import { describe, it, expect, beforeEach } from "vitest";
+import { CredShieldSimulator } from "./credshield-simulator.js";
+import { CredentialState } from "../managed/credshield/contract/index.js";
+import { randomBytes } from "./utils.js";
 
 // ─────────────────────────────────────────────────────────────
 // Test helpers
 // ─────────────────────────────────────────────────────────────
 const toHex = (bytes: Uint8Array) =>
   Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 
 // credentialMetadata is Maybe<Opaque<"string">> → { is_some: true, value: "..." }
 const extractMetadata = (meta: unknown): string | null => {
   if (!meta) return null;
-  if (typeof meta === 'string') return meta;
-  if (typeof meta === 'object' && meta !== null && 'is_some' in meta) {
+  if (typeof meta === "string") return meta;
+  if (typeof meta === "object" && meta !== null && "is_some" in meta) {
     const m = meta as { is_some: boolean; value?: string };
     return m.is_some ? (m.value ?? null) : null;
   }
@@ -25,7 +25,7 @@ const extractMetadata = (meta: unknown): string | null => {
 // ─────────────────────────────────────────────────────────────
 // Test Suite
 // ─────────────────────────────────────────────────────────────
-describe('CredShield ZK Circuit Tests', () => {
+describe("CredShield ZK Circuit Tests", () => {
   let secretKey: Uint8Array;
   let sim: CredShieldSimulator;
 
@@ -37,9 +37,9 @@ describe('CredShield ZK Circuit Tests', () => {
   // ──────────────────────────────────────────
   // Test 1: Circuit Logic — issueCredential
   // ──────────────────────────────────────────
-  it('issueCredential: circuit computes correct ledger state', () => {
+  it("issueCredential: circuit computes correct ledger state", () => {
     const credId = randomBytes(32);
-    const metadata = 'CredShield University Diploma 2025';
+    const metadata = "CredShield University Diploma 2025";
 
     const ledger = sim.issueCredential(credId, metadata);
 
@@ -61,9 +61,9 @@ describe('CredShield ZK Circuit Tests', () => {
   // ──────────────────────────────────────────
   // Test 2: State Transitions — full lifecycle
   // ──────────────────────────────────────────
-  it('state transitions: UNINITIALIZED → ACTIVE → VERIFIED → REVOKED', () => {
+  it("state transitions: UNINITIALIZED → ACTIVE → VERIFIED → REVOKED", () => {
     const credId = randomBytes(32);
-    const metadata = 'CredShield Professional Certificate';
+    const metadata = "CredShield Professional Certificate";
 
     // Initial state must be UNINITIALIZED
     const initialLedger = sim.getLedger();
@@ -96,9 +96,9 @@ describe('CredShield ZK Circuit Tests', () => {
   // ──────────────────────────────────────────
   // Test 3: Privacy — secretKey never in ledger
   // ──────────────────────────────────────────
-  it('privacy: secretKey is never exposed in any ledger output', () => {
+  it("privacy: secretKey is never exposed in any ledger output", () => {
     const credId = randomBytes(32);
-    const metadata = 'Private Medical Record Certificate';
+    const metadata = "Private Medical Record Certificate";
 
     const secretKeyHex = toHex(secretKey);
 
@@ -141,10 +141,10 @@ describe('CredShield ZK Circuit Tests', () => {
   // ──────────────────────────────────────────
   // Test 4: Negative — wrong ID rejected
   // ──────────────────────────────────────────
-  it('verifyCredential: rejects credential ID mismatch', () => {
+  it("verifyCredential: rejects credential ID mismatch", () => {
     const credId = randomBytes(32);
     const wrongId = randomBytes(32);
-    const metadata = 'CredShield Test Certificate';
+    const metadata = "CredShield Test Certificate";
 
     sim.issueCredential(credId, metadata);
 
@@ -155,7 +155,7 @@ describe('CredShield ZK Circuit Tests', () => {
   // ──────────────────────────────────────────
   // Test 5: Authority — authorityPublicKey is deterministic
   // ──────────────────────────────────────────
-  it('authorityPublicKey: is deterministic for same secretKey', () => {
+  it("authorityPublicKey: is deterministic for same secretKey", () => {
     const sim2 = new CredShieldSimulator(secretKey);
 
     const pk1 = sim.authorityPublicKey();
