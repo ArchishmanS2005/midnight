@@ -27,7 +27,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Install Compact compiler
         run: |
@@ -43,8 +43,7 @@ jobs:
 
       - name: Run test suite
         working-directory: contract
-        run: |
-          npm run test
+        run: npm run test
 
       - name: Compile and verify contract
         working-directory: contract
@@ -55,13 +54,11 @@ jobs:
 
       - name: Compile and verify API
         working-directory: api
-        run: |
-          npm run ci
+        run: npm run ci
 
       - name: Compile and verify CredShield CLI
         working-directory: credshield-cli
-        run: |
-          npm run ci
+        run: npm run ci
 
       - name: Compile and verify CredShield UI
         working-directory: credshield-ui
