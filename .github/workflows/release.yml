@@ -75,7 +75,7 @@ jobs:
           tar -czf credshield-release.tar.gz release-bundles/
 
       - name: Upload release bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: credshield-release
           path: credshield-release.tar.gz
