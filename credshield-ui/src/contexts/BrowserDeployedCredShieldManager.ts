@@ -1,12 +1,7 @@
 import { type ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 import { type ContractAddress } from '@midnight-ntwrk/compact-runtime';
 import { type UnboundTransaction } from '@midnight-ntwrk/midnight-js-types';
-import {
-  type CredShieldCircuitKeys,
-  type CredShieldDerivedState,
-  type CredShieldProviders,
-  CredShieldAPI,
-} from '@midnight-ntwrk/credshield-api';
+import { type CredShieldCircuitKeys, type CredShieldProviders, CredShieldAPI } from '@midnight-ntwrk/credshield-api';
 import { type CredShieldPrivateState } from '@midnight-ntwrk/credshield-contract';
 import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
@@ -64,9 +59,7 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
 
   retry(contractAddress?: ContractAddress): Observable<CredShieldDeployment> {
     this.#initializedProviders = undefined;
-    const normalizedAddr = contractAddress
-      ? (formatContractAddress(contractAddress) as ContractAddress)
-      : undefined;
+    const normalizedAddr = contractAddress ? formatContractAddress(contractAddress) : undefined;
     const deployments = this.#deploymentsSubject.value;
 
     // Find any existing deployment (deployed OR failed) to retry in-place
@@ -96,16 +89,14 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
   }
 
   resolve(contractAddress?: ContractAddress): Observable<CredShieldDeployment> {
-    const normalizedAddr = contractAddress
-      ? (formatContractAddress(contractAddress) as ContractAddress)
-      : undefined;
+    const normalizedAddr = contractAddress ? formatContractAddress(contractAddress) : undefined;
     const deployments = this.#deploymentsSubject.value;
 
     // Check for any existing deployment matching this address (any status)
     const existing = deployments.find((d) => {
       if (d.value.status === 'deployed' && d.value.api.deployedContractAddress === normalizedAddr) return true;
       // For non-addressed deploys (new contract), match any in-progress
-      if (!normalizedAddr && (d.value.status === 'in-progress')) return true;
+      if (!normalizedAddr && d.value.status === 'in-progress') return true;
       return false;
     });
 
@@ -182,15 +173,9 @@ export class BrowserDeployedCredShieldManager implements DeployedCredShieldAPIPr
 
 import { setNetworkId, type NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
-const initializeProviders = async (
-  logger: Logger,
-  connectedAPI: ConnectedAPI,
-): Promise<CredShieldProviders> => {
+const initializeProviders = async (logger: Logger, connectedAPI: ConnectedAPI): Promise<CredShieldProviders> => {
   const zkConfigPath = window.location.origin;
-  const keyMaterialProvider = new FetchZkConfigProvider<CredShieldCircuitKeys>(
-    zkConfigPath,
-    fetch.bind(window),
-  );
+  const keyMaterialProvider = new FetchZkConfigProvider<CredShieldCircuitKeys>(zkConfigPath, fetch.bind(window));
 
   const [config, shieldedAddresses] = await Promise.all([
     connectedAPI.getConfiguration(),

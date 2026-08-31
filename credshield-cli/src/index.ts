@@ -18,11 +18,7 @@ import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
 import { MidnightWalletProvider } from './midnight-wallet-provider.js';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
 import { randomBytes } from '@midnight-ntwrk/credshield-api';
-import {
-  CredentialState,
-  ledger,
-  type CredShieldPrivateState,
-} from '@midnight-ntwrk/credshield-contract';
+import { CredentialState, ledger, type CredShieldPrivateState } from '@midnight-ntwrk/credshield-contract';
 import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
 import { syncWallet, waitForUnshieldedFunds } from './wallet-utils.js';
 import { generateDust } from './generate-dust.js';
@@ -46,7 +42,7 @@ const deployOrJoin = async (
         return await CredShieldAPI.deploy(providers, logger);
       case '2': {
         const contractAddress = await rli.question(`Enter the 32-byte CredShield contract address: `);
-        return await CredShieldAPI.join(providers, contractAddress.trim() as ContractAddress, logger);
+        return await CredShieldAPI.join(providers, contractAddress.trim(), logger);
       }
       case '3':
         return null;
@@ -56,11 +52,7 @@ const deployOrJoin = async (
   }
 };
 
-const displayLedgerState = async (
-  providers: CredShieldProviders,
-  contractAddress: ContractAddress,
-  logger: Logger,
-) => {
+const displayLedgerState = async (providers: CredShieldProviders, contractAddress: ContractAddress, logger: Logger) => {
   const contractState = await providers.publicDataProvider.queryContractState(contractAddress);
   if (contractState === null) {
     logger.info(`Contract state not found`);
@@ -71,12 +63,14 @@ const displayLedgerState = async (
     currentLedger.credentialState === CredentialState.ACTIVE
       ? 'ACTIVE'
       : currentLedger.credentialState === CredentialState.REVOKED
-      ? 'REVOKED'
-      : 'UNINITIALIZED';
+        ? 'REVOKED'
+        : 'UNINITIALIZED';
 
   logger.info(`Ledger Credential State: ${stateStr}`);
   logger.info(`Ledger Credential ID: ${toHex(currentLedger.credentialId)}`);
-  logger.info(`Ledger Metadata: ${currentLedger.credentialMetadata.is_some ? currentLedger.credentialMetadata.value : 'none'}`);
+  logger.info(
+    `Ledger Metadata: ${currentLedger.credentialMetadata.is_some ? currentLedger.credentialMetadata.value : 'none'}`,
+  );
   logger.info(`Ledger Issuer Authority: ${toHex(currentLedger.issuerAuthority)}`);
   logger.info(`Ledger Total Issued: ${currentLedger.totalIssued}`);
   logger.info(`Ledger Total Verified: ${currentLedger.totalVerified}`);
@@ -84,7 +78,7 @@ const displayLedgerState = async (
 };
 
 const displayPrivateState = async (providers: CredShieldProviders, logger: Logger) => {
-  const privateState = (await providers.privateStateProvider.get(credShieldPrivateStateKey)) as CredShieldPrivateState | null;
+  const privateState = await providers.privateStateProvider.get(credShieldPrivateStateKey);
   if (privateState === null) {
     logger.info(`No existing CredShield private state found`);
   } else {
@@ -100,8 +94,8 @@ const displayDerivedState = (derivedState: CredShieldDerivedState | undefined, l
       derivedState.credentialState === CredentialState.ACTIVE
         ? 'ACTIVE'
         : derivedState.credentialState === CredentialState.REVOKED
-        ? 'REVOKED'
-        : 'UNINITIALIZED';
+          ? 'REVOKED'
+          : 'UNINITIALIZED';
 
     logger.info(`Credential Status: ${stateStr}`);
     logger.info(`Credential ID: ${derivedState.credentialId}`);
@@ -138,7 +132,9 @@ const mainLoop = async (providers: CredShieldProviders, rli: Interface, logger: 
       try {
         switch (choice) {
           case '1': {
-            const title = await rli.question(`Enter Credential Title / Metadata (e.g. "BSc Computer Science - Grade A"): `);
+            const title = await rli.question(
+              `Enter Credential Title / Metadata (e.g. "BSc Computer Science - Grade A"): `,
+            );
             const rawId = randomBytes(32);
             logger.info(`Issuing credential with ID ${toHex(rawId)}...`);
             await credShieldApi.issueCredential(rawId, title);
@@ -146,7 +142,10 @@ const mainLoop = async (providers: CredShieldProviders, rli: Interface, logger: 
             break;
           }
           case '2': {
-            if (!currentState?.credentialId || currentState.credentialId === '0000000000000000000000000000000000000000000000000000000000000000') {
+            if (
+              !currentState?.credentialId ||
+              currentState.credentialId === '0000000000000000000000000000000000000000000000000000000000000000'
+            ) {
               logger.error('No active credential found to verify.');
               break;
             }
@@ -248,7 +247,9 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
       }
     }
 
-    const zkConfigProvider = new NodeZkConfigProvider<'issueCredential' | 'verifyCredential' | 'revokeCredential'>(config.zkConfigPath);
+    const zkConfigProvider = new NodeZkConfigProvider<'issueCredential' | 'verifyCredential' | 'revokeCredential'>(
+      config.zkConfigPath,
+    );
     const providers: CredShieldProviders = {
       privateStateProvider: levelPrivateStateProvider<typeof credShieldPrivateStateKey, CredShieldPrivateState>({
         privateStateStoreName: config.privateStateStoreName,

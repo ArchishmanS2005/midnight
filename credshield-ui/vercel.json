@@ -3,21 +3,15 @@
   "outputDirectory": "dist",
   "installCommand": "echo 'skip'",
   "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {
       "source": "/keys/(.*)",
-      "headers": [
-        { "key": "Content-Type", "value": "application/octet-stream" }
-      ]
+      "headers": [{ "key": "Content-Type", "value": "application/octet-stream" }]
     },
     {
       "source": "/zkir/(.*)",
-      "headers": [
-        { "key": "Content-Type", "value": "application/octet-stream" }
-      ]
+      "headers": [{ "key": "Content-Type", "value": "application/octet-stream" }]
     }
   ]
 }

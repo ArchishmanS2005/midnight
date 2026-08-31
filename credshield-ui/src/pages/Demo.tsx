@@ -1,9 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Lock, Shield, EyeOff, Plus, AlertTriangle, X } from 'lucide-react';
 import { CredShieldCard, CredShieldHero } from '../components';
@@ -37,17 +33,21 @@ export default function Demo() {
   };
 
   const handleJoinContract = (contractAddress: string) => {
-    credShieldManager.resolve(contractAddress as any);
+    credShieldManager.resolve(contractAddress);
     scrollToActiveCard();
   };
 
   const handleRetryConnect = async () => {
     await wallet.connect();
-    setTimeout(() => { credShieldManager.retry(); }, 500);
+    setTimeout(() => {
+      credShieldManager.retry();
+    }, 500);
   };
 
   const scrollToActiveCard = () => {
-    setTimeout(() => { activeCardsRef.current?.scrollIntoView({ behavior: 'smooth' }); }, 100);
+    setTimeout(() => {
+      activeCardsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   const scrollToGuide = () => {
@@ -60,8 +60,10 @@ export default function Demo() {
       content: (
         <>
           <p className="text-black/55 text-[13px] leading-relaxed mb-3">
-            The contract is written in Compact (<code className="text-[#2B2644] font-mono">contract/src/credshield.compact</code>).
-            It defines the <code className="text-[#2B2644] font-mono">CredentialState</code> enum, ledger counters, and zero-knowledge circuit methods:
+            The contract is written in Compact (
+            <code className="text-[#2B2644] font-mono">contract/src/credshield.compact</code>). It defines the{' '}
+            <code className="text-[#2B2644] font-mono">CredentialState</code> enum, ledger counters, and zero-knowledge
+            circuit methods:
           </p>
           <pre className="bg-[#2B2644] rounded-xl p-4 text-[#AFDDFF] font-mono text-[12px] overflow-x-auto">{`cd contract
 yarn compact # Compiles Compact contract into ZK proving keys & TypeScript bindings
@@ -74,7 +76,8 @@ yarn build   # Builds @midnight-ntwrk/credshield-contract`}</pre>
       content: (
         <>
           <p className="text-black/55 text-[13px] leading-relaxed mb-3">
-            Credential issuance and verification can be performed directly via the Web UI (using <strong>Lace / 1AM Wallet</strong>) or via CLI:
+            Credential issuance and verification can be performed directly via the Web UI (using{' '}
+            <strong>Lace / 1AM Wallet</strong>) or via CLI:
           </p>
           <pre className="bg-[#2B2644] rounded-xl p-4 text-[#AFDDFF] font-mono text-[12px] overflow-x-auto">{`cd credshield-cli
 yarn build
@@ -86,8 +89,11 @@ npm run preprod-remote # Connects to Midnight Preprod Testnet & launches CLI men
       title: '3. Contract Address Format & Testnet Verification',
       content: (
         <p className="text-black/55 text-[13px] leading-relaxed">
-          Midnight contract addresses are 32 bytes long (64 hex characters). Example:<br />
-          <code className="text-[#2B2644] font-mono break-all">0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5</code>
+          Midnight contract addresses are 32 bytes long (64 hex characters). Example:
+          <br />
+          <code className="text-[#2B2644] font-mono break-all">
+            0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5
+          </code>
         </p>
       ),
     },
@@ -104,7 +110,8 @@ docker compose -f standalone.yml up -d
 # Verify proof server is running
 curl http://localhost:6300`}</pre>
           <p className="text-[#2B2644] text-[13px] mt-3 font-medium">
-            ⚡ Note: ZK proof generation takes 30–60 seconds per circuit call. A loading indicator is shown during proof generation.
+            ⚡ Note: ZK proof generation takes 30–60 seconds per circuit call. A loading indicator is shown during proof
+            generation.
           </p>
         </>
       ),
@@ -113,11 +120,7 @@ curl http://localhost:6300`}</pre>
 
   return (
     <div className="py-2">
-      <CredShieldHero
-        onIssueClick={handleDeployNew}
-        onVerifyClick={scrollToActiveCard}
-        onGuideClick={scrollToGuide}
-      />
+      <CredShieldHero onIssueClick={handleDeployNew} onVerifyClick={scrollToActiveCard} onGuideClick={scrollToGuide} />
 
       {/* Privacy Model Banner */}
       <div className="mb-6 bg-[#2B2644]/6 border border-[#2B2644]/15 rounded-2xl p-4">
@@ -195,10 +198,7 @@ curl http://localhost:6300`}</pre>
           ))}
           {deployments.length === 0 && (
             <div data-testid="default-credshield-card">
-              <CredShieldCard
-                onQuickJoinPreprod={handleJoinContract}
-                onRetryConnect={handleRetryConnect}
-              />
+              <CredShieldCard onQuickJoinPreprod={handleJoinContract} onRetryConnect={handleRetryConnect} />
             </div>
           )}
         </div>
@@ -228,10 +228,7 @@ curl http://localhost:6300`}</pre>
                 '&.Mui-expanded': { borderColor: 'rgba(43,38,68,0.2)' },
               }}
             >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon sx={{ color: 'rgba(0,0,0,0.4)' }} />}
-                sx={{ px: 3, py: 1 }}
-              >
+              <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'rgba(0,0,0,0.4)' }} />} sx={{ px: 3, py: 1 }}>
                 <span style={{ fontWeight: 500, fontSize: '14px', color: '#000' }}>{step.title}</span>
               </AccordionSummary>
               <AccordionDetails sx={{ borderTop: '1px solid rgba(0,0,0,0.06)', px: 3, pt: 2.5, pb: 3 }}>

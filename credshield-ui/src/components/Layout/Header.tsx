@@ -165,8 +165,8 @@ export const Header: React.FC<HeaderProps> = ({ onJoinContract, onDeployContract
               hasError
                 ? (wallet.errorMessage ?? 'Connection failed')
                 : isConnected
-                ? `Connected to ${wallet.walletName ?? 'Lace Wallet'} on ${wallet.networkId ?? 'preprod'}`
-                : 'Click to connect your Lace or 1AM Wallet extension'
+                  ? `Connected to ${wallet.walletName ?? 'Lace Wallet'} on ${wallet.networkId ?? 'preprod'}`
+                  : 'Click to connect your Lace or 1AM Wallet extension'
             }
             arrow
           >
@@ -188,17 +188,9 @@ export const Header: React.FC<HeaderProps> = ({ onJoinContract, onDeployContract
                 }
                 sx={{
                   borderRadius: '10px',
-                  borderColor: isConnected
-                    ? '#166534'
-                    : hasError
-                    ? '#7f1d1d'
-                    : '#27272a',
+                  borderColor: isConnected ? '#166534' : hasError ? '#7f1d1d' : '#27272a',
                   color: isConnected ? '#22c55e' : hasError ? '#ef4444' : '#a1a1aa',
-                  bgcolor: isConnected
-                    ? 'rgba(34,197,94,0.08)'
-                    : hasError
-                    ? 'rgba(239,68,68,0.08)'
-                    : 'transparent',
+                  bgcolor: isConnected ? 'rgba(34,197,94,0.08)' : hasError ? 'rgba(239,68,68,0.08)' : 'transparent',
                   fontWeight: 600,
                   whiteSpace: 'nowrap',
                   maxWidth: 240,
@@ -209,8 +201,8 @@ export const Header: React.FC<HeaderProps> = ({ onJoinContract, onDeployContract
                     bgcolor: isConnected
                       ? 'rgba(34,197,94,0.15)'
                       : hasError
-                      ? 'rgba(239,68,68,0.15)'
-                      : 'rgba(255,255,255,0.05)',
+                        ? 'rgba(239,68,68,0.15)'
+                        : 'rgba(255,255,255,0.05)',
                   },
                 }}
               >

@@ -1,22 +1,8 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-  type PropsWithChildren,
-} from 'react';
-import {
-  type InitialAPI,
-  type ConnectedAPI,
-} from '@midnight-ntwrk/dapp-connector-api';
+import React, { createContext, useContext, useState, useCallback, useRef, type PropsWithChildren } from 'react';
+import { type InitialAPI, type ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
+import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
-export type WalletStatus =
-  | 'idle'
-  | 'detecting'
-  | 'connecting'
-  | 'connected'
-  | 'error';
+export type WalletStatus = 'idle' | 'detecting' | 'connecting' | 'connected' | 'error';
 
 export interface WalletState {
   status: WalletStatus;
@@ -36,22 +22,22 @@ export interface WalletContextValue extends WalletState {
 
 const WalletContext = createContext<WalletContextValue | undefined>(undefined);
 
-import { setNetworkId, type NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-
 const NETWORK_ID = (import.meta.env.VITE_NETWORK_ID as string | undefined) ?? 'undeployed';
-setNetworkId(NETWORK_ID as NetworkId);
+setNetworkId(NETWORK_ID);
 
 const detectWallet = (): InitialAPI | undefined => {
   if (typeof window === 'undefined' || !window.midnight) return undefined;
   const midObj = window.midnight as Record<string, unknown>;
 
-  // DApp Connector API v4: wallets inject under window.midnight using UUID keys.
-  // Each value is an InitialAPI with { name, icon, connect, ... }
-  // We iterate all entries and return the first valid wallet found.
   for (const [key, val] of Object.entries(midObj)) {
-    if (val && typeof val === 'object' && 'connect' in val && typeof (val as any).connect === 'function') {
-      console.log(`[CredShield] Detected wallet "${(val as any).name ?? key}" under key "${key}"`);
-      return val as InitialAPI;
+    if (
+      val &&
+      typeof val === 'object' &&
+      'connect' in val &&
+      typeof (val as Record<string, unknown>).connect === 'function'
+    ) {
+      console.log('[CredShield] Detected wallet:', key);
+      return val as unknown as InitialAPI;
     }
   }
 
@@ -75,9 +61,8 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const connect = useCallback(async () => {
     setState((s) => ({ ...s, status: 'detecting', errorMessage: null }));
 
-    // Debug: log what's available in window.midnight
     if (typeof window !== 'undefined' && window.midnight) {
-      console.log('[CredShield] window.midnight keys:', Object.keys(window.midnight as object));
+      console.log('[CredShield] window.midnight keys:', Object.keys(window.midnight));
     }
 
     let wallet: InitialAPI | undefined;
@@ -111,8 +96,7 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
         connectedAPI.getDustBalance().catch(() => null),
       ]);
 
-      const netId =
-        connectionStatus.status === 'connected' ? connectionStatus.networkId : NETWORK_ID;
+      const netId = connectionStatus.status === 'connected' ? connectionStatus.networkId : NETWORK_ID;
 
       setState({
         status: 'connected',
@@ -127,25 +111,31 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
       return true;
     } catch (err: unknown) {
       console.error('WALLET CONNECT ERROR:', err);
-      // APIError from the DApp Connector has a numeric `code` and string `info` field instead of `message`
       let msg = 'Failed to authorize wallet connection.';
       if (err && typeof err === 'object') {
         const apiErr = err as Record<string, unknown>;
         if (typeof apiErr['info'] === 'string' && apiErr['info'].trim() !== '') {
           msg = apiErr['info'];
-        } else if (typeof apiErr['message'] === 'string' && apiErr['message'].trim() !== '' && apiErr['message'] !== 'APIError') {
+        } else if (
+          typeof apiErr['message'] === 'string' &&
+          apiErr['message'].trim() !== '' &&
+          apiErr['message'] !== 'APIError'
+        ) {
           msg = apiErr['message'];
         } else if (err instanceof Error && err.message !== 'APIError') {
           msg = err.message;
         }
       }
-      // Provide a clearer hint if the user simply dismissed the wallet popup or had a network mismatch
       if (msg.includes('Network ID mismatch')) {
-        msg = `Network mismatch detected. The app requires the '${NETWORK_ID}' network. Please switch your wallet to the correct network and try again.`;
+        msg =
+          'Network mismatch detected. The app requires the ' +
+          NETWORK_ID +
+          ' network. Please switch your wallet to the correct network and try again.';
       } else if (!msg || msg.trim() === '' || msg === 'Failed to authorize wallet connection.') {
-        msg = 'Wallet authorization was rejected or timed out. Please approve the connection in your Lace / 1AM Wallet popup.';
+        msg =
+          'Wallet authorization was rejected or timed out. Please approve the connection in your Lace / 1AM Wallet popup.';
       }
-      
+
       console.error('Reason:', msg);
 
       setState((s) => ({
@@ -175,11 +165,7 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
     });
   }, []);
 
-  return (
-    <WalletContext.Provider value={{ ...state, connect, disconnect }}>
-      {children}
-    </WalletContext.Provider>
-  );
+  return <WalletContext.Provider value={{ ...state, connect, disconnect }}>{children}</WalletContext.Provider>;
 };
 
 export const useWallet = (): WalletContextValue => {

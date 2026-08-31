@@ -1,5 +1,8 @@
 import React, { type PropsWithChildren, createContext, useContext, useMemo, useEffect } from 'react';
-import { type DeployedCredShieldAPIProvider, BrowserDeployedCredShieldManager } from './BrowserDeployedCredShieldManager';
+import {
+  type DeployedCredShieldAPIProvider,
+  BrowserDeployedCredShieldManager,
+} from './BrowserDeployedCredShieldManager';
 import { useWallet } from './WalletContext';
 import { type Logger } from 'pino';
 
@@ -23,11 +26,7 @@ export const DeployedCredShieldProvider: React.FC<Readonly<DeployedCredShieldPro
     }
   }, [connectedAPI, manager]);
 
-  return (
-    <DeployedCredShieldContext.Provider value={manager}>
-      {children}
-    </DeployedCredShieldContext.Provider>
-  );
+  return <DeployedCredShieldContext.Provider value={manager}>{children}</DeployedCredShieldContext.Provider>;
 };
 
 export const useDeployedCredShieldContext = (): DeployedCredShieldAPIProvider => {

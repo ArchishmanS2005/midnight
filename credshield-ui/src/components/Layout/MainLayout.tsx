@@ -8,11 +8,7 @@ export type MainLayoutProps = PropsWithChildren<{
   onDeployContract?: () => void;
 }>;
 
-export const MainLayout: React.FC<MainLayoutProps> = ({
-  children,
-  onJoinContract,
-  onDeployContract,
-}) => {
+export const MainLayout: React.FC<MainLayoutProps> = ({ children, onJoinContract, onDeployContract }) => {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#030304' }}>
       <Header onJoinContract={onJoinContract} onDeployContract={onDeployContract} />
@@ -49,13 +45,31 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             </Stack>
 
             <Stack direction="row" spacing={3}>
-              <Link href="https://docs.midnight.network" target="_blank" rel="noreferrer" underline="hover" sx={{ color: '#a1a1aa', fontSize: '0.85rem' }}>
+              <Link
+                href="https://docs.midnight.network"
+                target="_blank"
+                rel="noreferrer"
+                underline="hover"
+                sx={{ color: '#a1a1aa', fontSize: '0.85rem' }}
+              >
                 Midnight Docs
               </Link>
-              <Link href="https://midnight.network" target="_blank" rel="noreferrer" underline="hover" sx={{ color: '#a1a1aa', fontSize: '0.85rem' }}>
+              <Link
+                href="https://midnight.network"
+                target="_blank"
+                rel="noreferrer"
+                underline="hover"
+                sx={{ color: '#a1a1aa', fontSize: '0.85rem' }}
+              >
                 Midnight Network
               </Link>
-              <Link href="https://github.com/Boredooms/credshield" target="_blank" rel="noreferrer" underline="hover" sx={{ color: '#a1a1aa', fontSize: '0.85rem' }}>
+              <Link
+                href="https://github.com/Boredooms/credshield"
+                target="_blank"
+                rel="noreferrer"
+                underline="hover"
+                sx={{ color: '#a1a1aa', fontSize: '0.85rem' }}
+              >
                 GitHub Repository
               </Link>
             </Stack>

@@ -47,12 +47,22 @@ const primaryFeatures = [
 ];
 
 const technicalSpecs = [
-  { icon: Cpu,      label: 'Circuits',      value: '3 ZK circuits',  detail: 'issueCredential, verifyCredential, revokeCredential' },
-  { icon: Database, label: 'Ledger State',  value: '7 fields',       detail: 'credentialState, credentialId, issuerAuthority, metadata, counters, sequence' },
-  { icon: Lock,     label: 'Key Size',      value: '32 bytes',       detail: 'Bytes<32> secret key in local witness context' },
-  { icon: Zap,      label: 'Proof Server',  value: 'v8.0.3',         detail: 'midnightntwrk/proof-server Docker image' },
-  { icon: Settings, label: 'Compact',       value: 'v0.23',          detail: 'Latest Compact language specification' },
-  { icon: Wrench,   label: 'Network Mode',  value: 'Undeployed',     detail: 'Local dev node with genesis wallet pre-funded' },
+  {
+    icon: Cpu,
+    label: 'Circuits',
+    value: '3 ZK circuits',
+    detail: 'issueCredential, verifyCredential, revokeCredential',
+  },
+  {
+    icon: Database,
+    label: 'Ledger State',
+    value: '7 fields',
+    detail: 'credentialState, credentialId, issuerAuthority, metadata, counters, sequence',
+  },
+  { icon: Lock, label: 'Key Size', value: '32 bytes', detail: 'Bytes<32> secret key in local witness context' },
+  { icon: Zap, label: 'Proof Server', value: 'v8.0.3', detail: 'midnightntwrk/proof-server Docker image' },
+  { icon: Settings, label: 'Compact', value: 'v0.23', detail: 'Latest Compact language specification' },
+  { icon: Wrench, label: 'Network Mode', value: 'Undeployed', detail: 'Local dev node with genesis wallet pre-funded' },
 ];
 
 export default function Features() {
@@ -71,10 +81,14 @@ export default function Features() {
             cards,
             { opacity: 0, y: 60, rotateX: 8 },
             {
-              opacity: 1, y: 0, rotateX: 0,
-              duration: 0.8, stagger: 0.1, ease: 'power3.out',
+              opacity: 1,
+              y: 0,
+              rotateX: 0,
+              duration: 0.8,
+              stagger: 0.1,
+              ease: 'power3.out',
               scrollTrigger: { trigger: containerRef.current, start: 'top 80%' },
-            }
+            },
           );
 
           const specs = containerRef.current.querySelectorAll('[data-spec]');
@@ -82,10 +96,13 @@ export default function Features() {
             specs,
             { opacity: 0, scale: 0.9 },
             {
-              opacity: 1, scale: 1,
-              duration: 0.6, stagger: 0.08, ease: 'back.out(1.4)',
+              opacity: 1,
+              scale: 1,
+              duration: 0.6,
+              stagger: 0.08,
+              ease: 'back.out(1.4)',
               scrollTrigger: { trigger: specs[0]?.parentElement, start: 'top 80%' },
-            }
+            },
           );
         }
       } catch {
@@ -97,7 +114,6 @@ export default function Features() {
 
   return (
     <div className="text-black pb-10 pt-2" ref={containerRef}>
-
       {/* Page Header */}
       <div className="mb-12">
         <div className="flex items-center gap-2 mb-3">
@@ -109,9 +125,8 @@ export default function Features() {
           Features & Capabilities
         </h1>
         <p className="text-black/55 text-[15px] leading-relaxed max-w-2xl">
-          CredShield leverages Midnight&apos;s Compact ZK circuits and hybrid ledger architecture
-          to deliver verifiable credentials that are genuinely private, locally provable, and
-          cryptographically revocable.
+          CredShield leverages Midnight&apos;s Compact ZK circuits and hybrid ledger architecture to deliver verifiable
+          credentials that are genuinely private, locally provable, and cryptographically revocable.
         </p>
       </div>
 
@@ -148,9 +163,7 @@ export default function Features() {
 
       {/* Technical Specifications */}
       <div>
-        <h2 className="text-black text-[1.6rem] font-medium tracking-[-0.03em] mb-2">
-          Technical Specifications
-        </h2>
+        <h2 className="text-black text-[1.6rem] font-medium tracking-[-0.03em] mb-2">Technical Specifications</h2>
         <p className="text-black/50 text-[14px] mb-8">
           The core building blocks that power CredShield&apos;s privacy guarantees.
         </p>

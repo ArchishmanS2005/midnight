@@ -7,11 +7,7 @@ export type CredShieldHeroProps = {
   onGuideClick: () => void;
 };
 
-export const CredShieldHero: React.FC<CredShieldHeroProps> = ({
-  onIssueClick,
-  onVerifyClick,
-  onGuideClick,
-}) => {
+export const CredShieldHero: React.FC<CredShieldHeroProps> = ({ onIssueClick, onVerifyClick, onGuideClick }) => {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-[#2B2644] px-6 md:px-14 pt-10 md:pt-14 pb-10 md:pb-12 mb-10">
       {/* Subtle radial glow */}
@@ -44,8 +40,8 @@ export const CredShieldHero: React.FC<CredShieldHeroProps> = ({
 
       {/* Subtitle */}
       <p className="text-white/55 text-center max-w-2xl mx-auto text-[14px] md:text-[15px] leading-relaxed mb-8 relative">
-        Issue and verify tamper-proof credentials on Midnight Blockchain. Credential holders prove ownership
-        off-chain via Compact zero-knowledge circuits without exposing secret keys or identity payloads to verifiers.
+        Issue and verify tamper-proof credentials on Midnight Blockchain. Credential holders prove ownership off-chain
+        via Compact zero-knowledge circuits without exposing secret keys or identity payloads to verifiers.
       </p>
 
       {/* Action Buttons */}

@@ -2,34 +2,94 @@ import React, { useEffect, useRef } from 'react';
 import { Database, Lock, CloudOff, Network, Server, GitBranch } from 'lucide-react';
 
 const publicState = [
-  { field: 'credentialState',    type: 'CredentialState',             desc: 'UNINITIALIZED → ACTIVE → REVOKED enum lifecycle' },
-  { field: 'credentialId',       type: 'Bytes<32>',                   desc: 'Cryptographic 32-byte identifier hash of the credential' },
-  { field: 'credentialMetadata', type: 'Maybe<Opaque<"string">>',     desc: 'Optional human-readable metadata (degree title, badge name)' },
-  { field: 'issuerAuthority',    type: 'Bytes<32>',                   desc: 'persistentHash of (pad, sequence, secretKey) — issuer commitment' },
-  { field: 'totalIssued',        type: 'Counter',                     desc: 'Global on-chain counter of successful credential issuances' },
-  { field: 'totalVerified',      type: 'Counter',                     desc: 'Global counter of successful ZK verification proofs' },
-  { field: 'sequence',           type: 'Counter',                     desc: 'Internal sequence number for key derivation rotation' },
+  { field: 'credentialState', type: 'CredentialState', desc: 'UNINITIALIZED → ACTIVE → REVOKED enum lifecycle' },
+  { field: 'credentialId', type: 'Bytes<32>', desc: 'Cryptographic 32-byte identifier hash of the credential' },
+  {
+    field: 'credentialMetadata',
+    type: 'Maybe<Opaque<"string">>',
+    desc: 'Optional human-readable metadata (degree title, badge name)',
+  },
+  {
+    field: 'issuerAuthority',
+    type: 'Bytes<32>',
+    desc: 'persistentHash of (pad, sequence, secretKey) — issuer commitment',
+  },
+  { field: 'totalIssued', type: 'Counter', desc: 'Global on-chain counter of successful credential issuances' },
+  { field: 'totalVerified', type: 'Counter', desc: 'Global counter of successful ZK verification proofs' },
+  { field: 'sequence', type: 'Counter', desc: 'Internal sequence number for key derivation rotation' },
 ];
 
 const privateWitness = [
-  { field: 'secretKey',              type: 'Bytes<32>',       desc: 'Held strictly in local client memory (WitnessContext)' },
-  { field: 'ZK Circuit Execution',   type: 'Off-Chain',      desc: 'Proof generation runs entirely client-side, never on-chain' },
-  { field: 'Authority Derivation',   type: 'persistentHash', desc: 'authorityPublicKey(sk, sequence) computed in zero-knowledge' },
-  { field: 'Private State',          type: 'In-Memory Provider', desc: 'Scoped per contract address, never persisted to network' },
+  { field: 'secretKey', type: 'Bytes<32>', desc: 'Held strictly in local client memory (WitnessContext)' },
+  {
+    field: 'ZK Circuit Execution',
+    type: 'Off-Chain',
+    desc: 'Proof generation runs entirely client-side, never on-chain',
+  },
+  {
+    field: 'Authority Derivation',
+    type: 'persistentHash',
+    desc: 'authorityPublicKey(sk, sequence) computed in zero-knowledge',
+  },
+  {
+    field: 'Private State',
+    type: 'In-Memory Provider',
+    desc: 'Scoped per contract address, never persisted to network',
+  },
 ];
 
 const pipeline = [
-  { step: '1', title: 'Compile Compact Contract', detail: 'compact compile src/credshield.compact → ZKIR, WASM proving keys, TypeScript bindings', accent: '#2B2644' },
-  { step: '2', title: 'Start Local Network',       detail: 'docker compose -f standalone.yml up -d → node:9944, indexer:8088, proof-server:6300',   accent: '#4A7C59' },
-  { step: '3', title: 'Build API + CLI + UI',      detail: 'yarn build across all workspace packages (contract → api → cli → ui)',                    accent: '#2B5F8A' },
-  { step: '4', title: 'Deploy Contract Instance',  detail: 'CLI standalone mode or Web DApp — uses genesis wallet on undeployed network',             accent: '#6B4A8A' },
-  { step: '5', title: 'Issue & Verify Credentials',detail: 'Execute ZK circuits via CredShieldAPI — proofs generated locally, verified on-chain',     accent: '#8A4A6B' },
+  {
+    step: '1',
+    title: 'Compile Compact Contract',
+    detail: 'compact compile src/credshield.compact → ZKIR, WASM proving keys, TypeScript bindings',
+    accent: '#2B2644',
+  },
+  {
+    step: '2',
+    title: 'Start Local Network',
+    detail: 'docker compose -f standalone.yml up -d → node:9944, indexer:8088, proof-server:6300',
+    accent: '#4A7C59',
+  },
+  {
+    step: '3',
+    title: 'Build API + CLI + UI',
+    detail: 'yarn build across all workspace packages (contract → api → cli → ui)',
+    accent: '#2B5F8A',
+  },
+  {
+    step: '4',
+    title: 'Deploy Contract Instance',
+    detail: 'CLI standalone mode or Web DApp — uses genesis wallet on undeployed network',
+    accent: '#6B4A8A',
+  },
+  {
+    step: '5',
+    title: 'Issue & Verify Credentials',
+    detail: 'Execute ZK circuits via CredShieldAPI — proofs generated locally, verified on-chain',
+    accent: '#8A4A6B',
+  },
 ];
 
 const services = [
-  { name: 'Midnight Node', port: '9944', image: 'midnightntwrk/midnight-node:0.22.3',         desc: 'Local blockchain node with dev preset' },
-  { name: 'Indexer',       port: '8088', image: 'midnightntwrk/indexer-standalone:4.0.1',     desc: 'GraphQL + WebSocket indexer API' },
-  { name: 'Proof Server',  port: '6300', image: 'midnightntwrk/proof-server:8.0.3',           desc: 'ZK proof generation service' },
+  {
+    name: 'Midnight Node',
+    port: '9944',
+    image: 'midnightntwrk/midnight-node:0.22.3',
+    desc: 'Local blockchain node with dev preset',
+  },
+  {
+    name: 'Indexer',
+    port: '8088',
+    image: 'midnightntwrk/indexer-standalone:4.0.1',
+    desc: 'GraphQL + WebSocket indexer API',
+  },
+  {
+    name: 'Proof Server',
+    port: '6300',
+    image: 'midnightntwrk/proof-server:8.0.3',
+    desc: 'ZK proof generation service',
+  },
 ];
 
 export default function Architecture() {
@@ -48,10 +108,13 @@ export default function Architecture() {
             sections,
             { opacity: 0, y: 50 },
             {
-              opacity: 1, y: 0,
-              duration: 0.9, stagger: 0.15, ease: 'power3.out',
+              opacity: 1,
+              y: 0,
+              duration: 0.9,
+              stagger: 0.15,
+              ease: 'power3.out',
               scrollTrigger: { trigger: containerRef.current, start: 'top 85%' },
-            }
+            },
           );
         }
       } catch {
@@ -63,7 +126,6 @@ export default function Architecture() {
 
   return (
     <div className="text-black pb-10 pt-2" ref={containerRef}>
-
       {/* Header */}
       <div className="mb-12">
         <div className="flex items-center gap-2 mb-3">
@@ -75,9 +137,9 @@ export default function Architecture() {
           Architecture & State Model
         </h1>
         <p className="text-black/55 text-[15px] leading-relaxed max-w-2xl">
-          CredShield uses Midnight&apos;s hybrid ledger model — public state lives on-chain for verifiability
-          while secret keys and witness computations remain strictly in local memory. The architecture guarantees
-          complete privacy with zero trust assumptions.
+          CredShield uses Midnight&apos;s hybrid ledger model — public state lives on-chain for verifiability while
+          secret keys and witness computations remain strictly in local memory. The architecture guarantees complete
+          privacy with zero trust assumptions.
         </p>
       </div>
 
@@ -94,7 +156,9 @@ export default function Architecture() {
               <div key={item.field} className="p-3 bg-[#F5F5F5] rounded-xl border border-black/[0.05]">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <code className="text-[#2B2644] text-[12px] font-mono font-medium">{item.field}</code>
-                  <span className="px-1.5 py-0.5 bg-black/5 rounded text-black/40 text-[10px] font-mono">{item.type}</span>
+                  <span className="px-1.5 py-0.5 bg-black/5 rounded text-black/40 text-[10px] font-mono">
+                    {item.type}
+                  </span>
                 </div>
                 <p className="text-black/50 text-[11px] leading-snug">{item.desc}</p>
               </div>
@@ -116,7 +180,9 @@ export default function Architecture() {
               <div key={item.field} className="p-3 bg-white/8 rounded-xl border border-white/10">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <code className="text-[#AFDDFF] text-[12px] font-mono font-medium">{item.field}</code>
-                  <span className="px-1.5 py-0.5 bg-white/10 rounded text-white/40 text-[10px] font-mono">{item.type}</span>
+                  <span className="px-1.5 py-0.5 bg-white/10 rounded text-white/40 text-[10px] font-mono">
+                    {item.type}
+                  </span>
                 </div>
                 <p className="text-white/55 text-[11px] leading-snug">{item.desc}</p>
               </div>
@@ -129,8 +195,8 @@ export default function Architecture() {
               <span className="text-white text-[13px] font-medium">Zero Network Exposure</span>
             </div>
             <p className="text-white/50 text-[11px] leading-relaxed">
-              The secret key generates an authority commitment via persistentHash inside the ZK circuit.
-              The raw key value is never serialized, transmitted, or stored anywhere outside the client process.
+              The secret key generates an authority commitment via persistentHash inside the ZK circuit. The raw key
+              value is never serialized, transmitted, or stored anywhere outside the client process.
             </p>
           </div>
         </div>
@@ -142,7 +208,9 @@ export default function Architecture() {
       {/* Deployment Pipeline */}
       <div className="mb-12" data-section>
         <h2 className="text-black text-[1.6rem] font-medium tracking-[-0.03em] mb-2">Deployment Pipeline</h2>
-        <p className="text-black/50 text-[14px] mb-8">From contract compilation to live ZK credential verification — all running locally.</p>
+        <p className="text-black/50 text-[14px] mb-8">
+          From contract compilation to live ZK credential verification — all running locally.
+        </p>
 
         <div className="flex flex-col gap-3">
           {pipeline.map((p) => (
@@ -176,8 +244,8 @@ export default function Architecture() {
         </div>
         <p className="text-black/50 text-[14px] mb-8">
           All services use the <code className="text-[#2B2644] font-mono">undeployed</code> network ID with the{' '}
-          <code className="text-[#2B2644] font-mono">dev</code> node preset.
-          Lace Wallet auto-connects to these ports when set to &quot;Undeployed&quot; mode.
+          <code className="text-[#2B2644] font-mono">dev</code> node preset. Lace Wallet auto-connects to these ports
+          when set to &quot;Undeployed&quot; mode.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -206,7 +274,7 @@ export default function Architecture() {
             Quick Start
           </div>
           <pre className="font-mono text-[13px] text-white/80 leading-relaxed whitespace-pre overflow-x-auto">
-{`# Start the full local Midnight network
+            {`# Start the full local Midnight network
 docker compose -f standalone.yml up -d
 
 # Check health of all services

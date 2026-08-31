@@ -14,15 +14,7 @@ function shortAddr(addr: string | null): string {
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 /** Desktop nav item */
-function NavLink({
-  to,
-  children,
-  delay,
-}: {
-  to: string;
-  children: React.ReactNode;
-  delay: string;
-}) {
+function NavLink({ to, children, delay }: { to: string; children: React.ReactNode; delay: string }) {
   return (
     <Link
       to={to}
@@ -99,7 +91,7 @@ function GridLines() {
             <div className="absolute w-[10px] h-px bg-black/60 -translate-x-1/2 -translate-y-1/2" />
             <div className="absolute w-px h-[10px] bg-black/60 -translate-x-1/2 -translate-y-1/2" />
           </div>
-        ))
+        )),
       )}
     </>
   );
@@ -107,18 +99,17 @@ function GridLines() {
 
 // ─── SVG connector line ───────────────────────────────────────────────────────
 
-function ConnectorLine({
-  x1, y1, x2, y2, delay,
-}: {
-  x1: string; y1: string; x2: string; y2: string; delay: number;
-}) {
+function ConnectorLine({ x1, y1, x2, y2, delay }: { x1: string; y1: string; x2: string; y2: string; delay: number }) {
   return (
     <svg
       className="absolute inset-0 w-full h-full pointer-events-none anim-fade-in"
       style={{ animationDelay: `${delay}ms` }}
     >
       <line
-        x1={x1} y1={y1} x2={x2} y2={y2}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
         stroke="rgba(0,0,0,0.2)"
         strokeWidth="1"
         vectorEffect="non-scaling-stroke"
@@ -130,12 +121,23 @@ function ConnectorLine({
 // ─── Halo-style node card ─────────────────────────────────────────────────────
 
 function NodeCard({
-  top, left, delay, label, description, slideDir, labelTop, labelLeft,
+  top,
+  left,
+  delay,
+  label,
+  description,
+  slideDir,
+  labelTop,
+  labelLeft,
 }: {
-  top: string; left: string; delay: number;
-  label: string; description: string;
+  top: string;
+  left: string;
+  delay: number;
+  label: string;
+  description: string;
   slideDir: 'left' | 'right';
-  labelTop: string; labelLeft: string;
+  labelTop: string;
+  labelLeft: string;
 }) {
   return (
     <>
@@ -151,12 +153,8 @@ function NodeCard({
         className={`absolute ${slideDir === 'left' ? 'anim-slide-left' : 'anim-slide-right'}`}
         style={{ top: labelTop, left: labelLeft, animationDelay: `${delay - 400}ms` }}
       >
-        <span className="text-black text-[13px] font-medium leading-[15.6px] whitespace-nowrap">
-          {label}
-        </span>
-        <p className="text-black/50 text-[11px] leading-[14px] mt-[4px] max-w-[160px]">
-          {description}
-        </p>
+        <span className="text-black text-[13px] font-medium leading-[15.6px] whitespace-nowrap">{label}</span>
+        <p className="text-black/50 text-[11px] leading-[14px] mt-[4px] max-w-[160px]">{description}</p>
       </div>
     </>
   );
@@ -175,10 +173,10 @@ export default function Landing() {
   const walletLabel = isConnecting
     ? 'Connecting…'
     : isConnected
-    ? shortAddr(wallet.shieldedAddress) || 'Connected'
-    : hasError
-    ? 'Retry Connect'
-    : 'Connect Wallet';
+      ? shortAddr(wallet.shieldedAddress) || 'Connected'
+      : hasError
+        ? 'Retry Connect'
+        : 'Connect Wallet';
 
   const handleWalletAction = () => {
     if (isConnected) wallet.disconnect();
@@ -187,13 +185,12 @@ export default function Landing() {
 
   // Nav items mapped to existing routes
   const navItems = [
-    { label: 'Features',    to: '/features' },
-    { label: 'About',  to: '/about' },
+    { label: 'Features', to: '/features' },
+    { label: 'About', to: '/about' },
   ];
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-[#F5F5F5]">
-
       {/* ── Layer 0: Background Video ──────────────────────────── */}
       <video
         className="absolute inset-0 w-full h-full object-cover anim-fade-in"
@@ -214,10 +211,8 @@ export default function Landing() {
 
       {/* ── Content Layer ─────────────────────────────────────── */}
       <div className="relative z-10 w-full h-full">
-
         {/* ── Navigation ──────────────────────────────────────── */}
         <nav className="absolute top-0 left-0 w-full flex items-center px-5 md:px-[35px] py-5 md:py-[27px]">
-
           {/* Left: wordmark + desktop links */}
           <div className="flex items-center gap-[40px]">
             <Link
@@ -229,11 +224,9 @@ export default function Landing() {
                 <Shield className="w-4 h-4 text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="text-black text-[15px] font-medium leading-tight tracking-tight">
-                  CredShield
-                </div>
+                <div className="text-black text-[15px] font-medium leading-tight tracking-tight">CredShield</div>
                 <div className="text-black/45 text-[10px] leading-none tracking-widest uppercase">
-                  Midnight ZK · Preprod
+                  Midnight ZK · Preprod
                 </div>
               </div>
             </Link>
@@ -251,10 +244,7 @@ export default function Landing() {
           {/* Right: wallet pill + hamburger */}
           <div className="ml-auto flex items-center gap-3">
             {/* Desktop wallet */}
-            <div
-              className="hidden lg:block anim-slide-right"
-              style={{ animationDelay: '600ms' }}
-            >
+            <div className="hidden lg:block anim-slide-right" style={{ animationDelay: '600ms' }}>
               <button
                 onClick={handleWalletAction}
                 disabled={isConnecting}
@@ -262,22 +252,25 @@ export default function Landing() {
                   isConnected
                     ? 'bg-[#2B2644] text-white hover:bg-[#3d3560]'
                     : hasError
-                    ? 'bg-red-100 text-red-800 hover:bg-red-200'
-                    : 'bg-black text-white hover:bg-black/80'
+                      ? 'bg-red-100 text-red-800 hover:bg-red-200'
+                      : 'bg-black text-white hover:bg-black/80'
                 } disabled:opacity-50`}
                 style={{ boxShadow: isConnected ? '0 0 14px rgba(43,38,68,0.5)' : '0 0 14px rgba(0,0,0,0.45)' }}
               >
                 <Wallet className="w-3.5 h-3.5" strokeWidth={1.5} />
                 <span className="leading-none">{walletLabel}</span>
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                  isConnected ? 'bg-white/20' : 'bg-white'
-                }`}>
-                  {isConnected
-                    ? <Lock className="w-3 h-3 text-white" strokeWidth={2} />
-                    : hasError
-                    ? <Zap className="w-3 h-3 text-red-600" strokeWidth={2} />
-                    : <ArrowRight className="w-3 h-3 text-black" strokeWidth={2} />
-                  }
+                <span
+                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                    isConnected ? 'bg-white/20' : 'bg-white'
+                  }`}
+                >
+                  {isConnected ? (
+                    <Lock className="w-3 h-3 text-white" strokeWidth={2} />
+                  ) : hasError ? (
+                    <Zap className="w-3 h-3 text-red-600" strokeWidth={2} />
+                  ) : (
+                    <ArrowRight className="w-3 h-3 text-black" strokeWidth={2} />
+                  )}
                 </span>
               </button>
             </div>
@@ -287,16 +280,20 @@ export default function Landing() {
               className="lg:hidden relative w-[40px] h-[40px] flex items-center justify-center anim-fade-in"
               style={{ animationDelay: '400ms' }}
               aria-label="Toggle menu"
-              onClick={() => setMenuOpen(v => !v)}
+              onClick={() => setMenuOpen((v) => !v)}
             >
-              <span className={`absolute transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] ${
-                menuOpen ? 'opacity-0 rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
-              }`}>
+              <span
+                className={`absolute transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+                  menuOpen ? 'opacity-0 rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'
+                }`}
+              >
                 <Menu className="w-[22px] h-[22px] text-black" strokeWidth={1.5} />
               </span>
-              <span className={`absolute transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] ${
-                menuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'
-              }`}>
+              <span
+                className={`absolute transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+                  menuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'
+                }`}
+              >
                 <X className="w-[22px] h-[22px] text-black" strokeWidth={1.5} />
               </span>
             </button>
@@ -304,9 +301,11 @@ export default function Landing() {
         </nav>
 
         {/* ── Mobile Menu Overlay ──────────────────────────────── */}
-        <div className={`fixed inset-0 z-50 lg:hidden transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
-          menuOpen ? 'visible' : 'invisible'
-        }`}>
+        <div
+          className={`fixed inset-0 z-50 lg:hidden transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+            menuOpen ? 'visible' : 'invisible'
+          }`}
+        >
           {/* Backdrop */}
           <div
             className={`absolute inset-0 bg-[#F5F5F5]/95 backdrop-blur-md transition-opacity duration-500 ${
@@ -316,9 +315,11 @@ export default function Landing() {
           />
 
           {/* Panel */}
-          <div className={`relative h-full flex flex-col px-5 pt-24 pb-10 transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
-            menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-          }`}>
+          <div
+            className={`relative h-full flex flex-col px-5 pt-24 pb-10 transition-all duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+              menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+            }`}
+          >
             {/* Close */}
             <button
               className="absolute top-5 right-5 w-[40px] h-[40px] flex items-center justify-center"
@@ -362,9 +363,7 @@ export default function Landing() {
             >
               <div className="flex items-center gap-2 mb-3">
                 <Wallet className="w-[15px] h-[15px] text-black/60" strokeWidth={1.5} />
-                <span className="text-black/60 text-[13px]">
-                  {shortAddr(wallet.shieldedAddress) || '—'}
-                </span>
+                <span className="text-black/60 text-[13px]">{shortAddr(wallet.shieldedAddress) || '—'}</span>
                 <span className={`text-[13px] font-medium ${isConnected ? 'text-[#2B2644]' : 'text-black/40'}`}>
                   {isConnected ? '[ CONNECTED ]' : hasError ? '[ ERROR ]' : '[ DISCONNECTED ]'}
                 </span>
@@ -428,24 +427,36 @@ export default function Landing() {
         <div className="absolute inset-0 pointer-events-none hidden md:block">
           {/* Node 1 — CORE_ENTITY */}
           <NodeCard
-            top="27%" left="60%" delay={1500}
+            top="27%"
+            left="60%"
+            delay={1500}
             label="[ CORE_ENTITY ]"
             description="Neural node processing real-time credential streams."
-            slideDir="left" labelTop="11%" labelLeft="26%"
+            slideDir="left"
+            labelTop="11%"
+            labelLeft="26%"
           />
           {/* Node 2 — LUMINOUS_INSIGHT */}
           <NodeCard
-            top="58%" left="32%" delay={1800}
+            top="58%"
+            left="32%"
+            delay={1800}
             label="[ LUMINOUS_INSIGHT ]"
             description="ZK-engine synthesizing proof payloads off-chain."
-            slideDir="left" labelTop="76%" labelLeft="3%"
+            slideDir="left"
+            labelTop="76%"
+            labelLeft="3%"
           />
           {/* Node 3 — CONNECTIVITY */}
           <NodeCard
-            top="63%" left="50%" delay={2100}
+            top="63%"
+            left="50%"
+            delay={2100}
             label="[ CONNECTIVITY ]"
             description="Latency-free verification across Midnight network."
-            slideDir="right" labelTop="50%" labelLeft="78%"
+            slideDir="right"
+            labelTop="50%"
+            labelLeft="78%"
           />
 
           {/* Connector lines — CORE_ENTITY elbow */}
@@ -453,21 +464,19 @@ export default function Landing() {
           <ConnectorLine x1="52%" y1="14%" x2="60%" y2="27%" delay={1400} />
           {/* LUMINOUS_INSIGHT elbow */}
           <ConnectorLine x1="32%" y1="58%" x2="20%" y2="74%" delay={1500} />
-          <ConnectorLine x1="20%" y1="74%" x2="6%"  y2="74%" delay={1700} />
+          <ConnectorLine x1="20%" y1="74%" x2="6%" y2="74%" delay={1700} />
           {/* CONNECTIVITY elbow */}
           <ConnectorLine x1="78%" y1="53%" x2="63%" y2="53%" delay={1800} />
           <ConnectorLine x1="63%" y1="53%" x2="50%" y2="63%" delay={2000} />
         </div>
 
         {/* ── Bottom Row ───────────────────────────────────────── */}
-        <div className="absolute bottom-5 md:bottom-[35px] left-5 md:left-[35px] right-5 md:right-[35px]
-                        flex flex-col md:flex-row items-start md:items-end justify-between gap-5 md:gap-0">
-
+        <div
+          className="absolute bottom-5 md:bottom-[35px] left-5 md:left-[35px] right-5 md:right-[35px]
+                        flex flex-col md:flex-row items-start md:items-end justify-between gap-5 md:gap-0"
+        >
           {/* Left: primary CTA — Launch Live Demo */}
-          <div
-            className="flex flex-col sm:flex-row gap-3 anim-fade-up"
-            style={{ animationDelay: '900ms' }}
-          >
+          <div className="flex flex-col sm:flex-row gap-3 anim-fade-up" style={{ animationDelay: '900ms' }}>
             <Link to="/demo" className="no-underline">
               <PillButton>Launch Live Demo</PillButton>
             </Link>
@@ -488,10 +497,7 @@ export default function Landing() {
           </div>
 
           {/* Right: info card — hidden below sm */}
-          <div
-            className="relative max-w-[280px] hidden sm:block anim-slide-right"
-            style={{ animationDelay: '1100ms' }}
-          >
+          <div className="relative max-w-[280px] hidden sm:block anim-slide-right" style={{ animationDelay: '1100ms' }}>
             {/* Halo card: rounded-2xl, #2B2644 bg, white text */}
             <div className="rounded-2xl bg-[#2B2644] p-5 shadow-xl">
               {/* Badge */}
@@ -502,9 +508,8 @@ export default function Landing() {
 
               {/* Copy */}
               <p className="text-white/80 text-[13px] leading-[18px] mb-4">
-                Issue, verify, and revoke tamper-proof credentials on the
-                Midnight Blockchain. Prove ownership off-chain via Compact ZK
-                circuits — secret keys never leave your browser.
+                Issue, verify, and revoke tamper-proof credentials on the Midnight Blockchain. Prove ownership off-chain
+                via Compact ZK circuits — secret keys never leave your browser.
               </p>
 
               {/* Link to Architecture */}
@@ -518,7 +523,6 @@ export default function Landing() {
             </div>
           </div>
         </div>
-
       </div>
     </section>
   );
