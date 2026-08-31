@@ -94,7 +94,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Download contract dist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: contract-dist
           path: contract/dist/
@@ -127,7 +127,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Download contract dist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: contract-dist
           path: contract/dist/
