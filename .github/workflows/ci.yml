@@ -36,15 +36,7 @@ jobs:
       - name: Install root dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Install Compact compiler
-        run: |
-          npm install -g @midnight-ntwrk/compact-compiler 2>/dev/null || true
-          compact --version 2>/dev/null && echo "✅ compact available" || echo "⚠️  compact not on PATH, will use npx"
 
-      - name: Compile Compact ZK circuits
-        working-directory: contract
-        run: |
-          npm run compact || npx --yes @midnight-ntwrk/compact-compiler compile src/credshield.compact ./src/managed/credshield
 
       - name: Type-check contract
         working-directory: contract
