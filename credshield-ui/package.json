@@ -37,7 +37,7 @@
     "@swc/core": "^1.15.41",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "^6.0.2",
+    "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.5.4",
     "eslint-plugin-react": "^7.37.5",
     "postcss": "^8.5.26",
