@@ -1,66 +1,44 @@
 import React, { useEffect, useRef } from 'react';
-import {
-  Box,
-  Typography,
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Stack,
-  Chip,
-  Divider,
-} from '@mui/material';
-import ShieldIcon from '@mui/icons-material/Shield';
-import LockIcon from '@mui/icons-material/Lock';
-import KeyIcon from '@mui/icons-material/Key';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import HubIcon from '@mui/icons-material/Hub';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import SecurityIcon from '@mui/icons-material/Security';
-import StorageIcon from '@mui/icons-material/Storage';
-import SpeedIcon from '@mui/icons-material/Speed';
-import TuneIcon from '@mui/icons-material/Tune';
-import BuildIcon from '@mui/icons-material/Build';
+import { Shield, Lock, Key, EyeOff, Network, Terminal, Cpu, Database, Zap, Settings, Wrench } from 'lucide-react';
 
 const primaryFeatures = [
   {
-    icon: <KeyIcon />,
+    icon: Key,
     title: 'Off-Chain ZK Proving',
     subtitle: 'Client-Side Privacy',
     desc: 'Compact ZK circuit provers execute entirely within local browser or CLI memory. The 32-byte secret key witness never leaves the client — zero network hops, zero exposure, zero trust assumptions.',
     highlight: 'secretKey stays in WitnessContext',
   },
   {
-    icon: <VerifiedUserIcon />,
+    icon: Shield,
     title: 'Selective Disclosure',
     subtitle: 'Prove Without Revealing',
     desc: 'Holders can prove credential validity, ownership, and active status without exposing the underlying raw metadata, identity payloads, or un-blinded commitment values to the verifier.',
     highlight: 'Zero raw identity exposure',
   },
   {
-    icon: <ShieldIcon />,
+    icon: Lock,
     title: 'Issuer Authority & Revocation',
     subtitle: 'Cryptographic Control',
     desc: 'The issuer authority is a persistent hash of (secretKey, sequence). Revocation requires re-computing this commitment, ensuring only the original issuer can disable a credential.',
     highlight: 'authorityPublicKey(sk, seq)',
   },
   {
-    icon: <VisibilityOffIcon />,
+    icon: EyeOff,
     title: 'Unlinkable Verifications',
     subtitle: 'Privacy-Preserving History',
     desc: 'Each verification increments the on-chain counter but reveals no correlation between verification requests. Historical holder activity is completely unlinkable.',
     highlight: 'totalVerified: Counter (no logs)',
   },
   {
-    icon: <HubIcon />,
+    icon: Network,
     title: 'Local-First Development',
     subtitle: 'Docker Standalone Network',
     desc: 'Run a full Midnight network locally — node on port 9944, indexer on 8088, proof server on 6300. Deploy and iterate without testnets, faucets, or wallet extensions.',
     highlight: 'docker compose -f standalone.yml up',
   },
   {
-    icon: <TerminalIcon />,
+    icon: Terminal,
     title: 'Dual Interface',
     subtitle: 'CLI + React Web DApp',
     desc: 'Issue credentials via the interactive terminal CLI or the React Web DApp. Both share the same CredShieldAPI TypeScript wrapper and ZK circuit execution path.',
@@ -69,12 +47,12 @@ const primaryFeatures = [
 ];
 
 const technicalSpecs = [
-  { icon: <SecurityIcon />, label: 'Circuits', value: '3 ZK circuits', detail: 'issueCredential, verifyCredential, revokeCredential' },
-  { icon: <StorageIcon />, label: 'Ledger State', value: '7 fields', detail: 'credentialState, credentialId, issuerAuthority, metadata, counters, sequence' },
-  { icon: <LockIcon />, label: 'Key Size', value: '32 bytes', detail: 'Bytes<32> secret key in local witness context' },
-  { icon: <SpeedIcon />, label: 'Proof Server', value: 'v8.0.3', detail: 'midnightntwrk/proof-server Docker image' },
-  { icon: <TuneIcon />, label: 'Compact Version', value: 'v0.23', detail: 'Latest Compact language specification' },
-  { icon: <BuildIcon />, label: 'Network Mode', value: 'Undeployed', detail: 'Local dev node with genesis wallet pre-funded' },
+  { icon: Cpu,      label: 'Circuits',      value: '3 ZK circuits',  detail: 'issueCredential, verifyCredential, revokeCredential' },
+  { icon: Database, label: 'Ledger State',  value: '7 fields',       detail: 'credentialState, credentialId, issuerAuthority, metadata, counters, sequence' },
+  { icon: Lock,     label: 'Key Size',      value: '32 bytes',       detail: 'Bytes<32> secret key in local witness context' },
+  { icon: Zap,      label: 'Proof Server',  value: 'v8.0.3',         detail: 'midnightntwrk/proof-server Docker image' },
+  { icon: Settings, label: 'Compact',       value: 'v0.23',          detail: 'Latest Compact language specification' },
+  { icon: Wrench,   label: 'Network Mode',  value: 'Undeployed',     detail: 'Local dev node with genesis wallet pre-funded' },
 ];
 
 export default function Features() {
@@ -118,117 +96,85 @@ export default function Features() {
   }, []);
 
   return (
-    <Box sx={{ color: '#ffffff', pb: 10, pt: 2 }} ref={containerRef}>
+    <div className="text-black pb-10 pt-2" ref={containerRef}>
+
       {/* Page Header */}
-      <Container maxWidth="lg" disableGutters sx={{ mb: 8 }}>
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 2 }}>
-          <Box sx={{ p: 1.2, bgcolor: 'rgba(229, 193, 88, 0.08)', borderRadius: '12px', border: '1px solid rgba(229, 193, 88, 0.2)' }}>
-            <SecurityIcon sx={{ color: '#e5c158', fontSize: 24 }} />
-          </Box>
-          <Chip label="PLATFORM FEATURES" size="small" sx={{ bgcolor: '#18181b', color: '#a1a1aa', fontWeight: 700, letterSpacing: '0.08em', fontSize: '0.7rem' }} />
-        </Stack>
-        <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.02em', mb: 1.5 }}>
+      <div className="mb-12">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="px-3 py-1 rounded-full bg-[#2B2644]/8 border border-[#2B2644]/15 text-[#2B2644] text-[11px] font-medium tracking-widest uppercase">
+            Platform Features
+          </div>
+        </div>
+        <h1 className="text-black text-[2.2rem] md:text-[2.8rem] font-medium tracking-[-0.03em] leading-tight mb-3">
           Features & Capabilities
-        </Typography>
-        <Typography variant="body1" sx={{ color: '#a1a1aa', maxWidth: 700, lineHeight: 1.7 }}>
+        </h1>
+        <p className="text-black/55 text-[15px] leading-relaxed max-w-2xl">
           CredShield leverages Midnight&apos;s Compact ZK circuits and hybrid ledger architecture
           to deliver verifiable credentials that are genuinely private, locally provable, and
           cryptographically revocable.
-        </Typography>
-      </Container>
+        </p>
+      </div>
 
       {/* Primary Features Grid */}
-      <Container maxWidth="lg" disableGutters sx={{ mb: 10 }}>
-        <Grid container spacing={3}>
-          {primaryFeatures.map((f) => (
-            <Grid size={{ xs: 12, md: 6 }} key={f.title}>
-              <Card
-                data-feature
-                sx={{
-                  bgcolor: '#08080c',
-                  border: '1px solid #1a1a1f',
-                  borderRadius: '20px',
-                  height: '100%',
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  '&:hover': {
-                    borderColor: 'rgba(229, 193, 88, 0.35)',
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 16px 40px rgba(0,0,0,0.6), 0 0 20px rgba(229, 193, 88, 0.05)',
-                  },
-                }}
-              >
-                <CardContent sx={{ p: 4 }}>
-                  <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start', mb: 2 }}>
-                    <Box sx={{ p: 1.4, bgcolor: 'rgba(229, 193, 88, 0.06)', borderRadius: '12px', border: '1px solid rgba(229, 193, 88, 0.15)' }}>
-                      {React.cloneElement(f.icon, { sx: { color: '#e5c158', fontSize: 26 } })}
-                    </Box>
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 800, color: '#ffffff', mb: 0.3 }}>
-                        {f.title}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#e5c158', fontWeight: 600, letterSpacing: '0.06em' }}>
-                        {f.subtitle}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                  <Typography variant="body2" sx={{ color: '#a1a1aa', lineHeight: 1.7, mb: 2 }}>
-                    {f.desc}
-                  </Typography>
-                  <Box sx={{ px: 2, py: 1, bgcolor: '#000000', borderRadius: '8px', border: '1px solid #18181b', display: 'inline-block' }}>
-                    <Typography variant="caption" sx={{ fontFamily: '"JetBrains Mono", monospace', color: '#71717a', fontWeight: 500, fontSize: '0.75rem' }}>
-                      {f.highlight}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-14">
+        {primaryFeatures.map((f) => {
+          const Icon = f.icon;
+          return (
+            <div
+              key={f.title}
+              data-feature
+              className="group bg-white rounded-2xl border border-black/[0.07] p-6 hover:border-[#2B2644]/20 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg"
+            >
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#2B2644] flex items-center justify-center shrink-0">
+                  <Icon className="w-5 h-5 text-white" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <div className="text-black text-[15px] font-medium leading-tight mb-0.5">{f.title}</div>
+                  <div className="text-[#2B2644] text-[11px] font-medium tracking-wide uppercase">{f.subtitle}</div>
+                </div>
+              </div>
+              <p className="text-black/55 text-[13px] leading-relaxed mb-4">{f.desc}</p>
+              <code className="inline-block px-2.5 py-1 bg-[#F5F5F5] rounded-lg text-black/50 text-[11px] font-mono border border-black/[0.06]">
+                {f.highlight}
+              </code>
+            </div>
+          );
+        })}
+      </div>
 
-      <Divider sx={{ borderColor: '#18181b', mb: 8 }} />
+      {/* Divider */}
+      <div className="h-px bg-black/[0.06] mb-12" />
 
       {/* Technical Specifications */}
-      <Container maxWidth="lg" disableGutters>
-        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em' }}>
+      <div>
+        <h2 className="text-black text-[1.6rem] font-medium tracking-[-0.03em] mb-2">
           Technical Specifications
-        </Typography>
-        <Typography variant="body1" sx={{ color: '#a1a1aa', mb: 5 }}>
+        </h2>
+        <p className="text-black/50 text-[14px] mb-8">
           The core building blocks that power CredShield&apos;s privacy guarantees.
-        </Typography>
+        </p>
 
-        <Grid container spacing={2.5}>
-          {technicalSpecs.map((spec) => (
-            <Grid size={{ xs: 6, md: 4 }} key={spec.label}>
-              <Box
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {technicalSpecs.map((spec) => {
+            const Icon = spec.icon;
+            return (
+              <div
+                key={spec.label}
                 data-spec
-                sx={{
-                  p: 3,
-                  bgcolor: '#0a0a0f',
-                  borderRadius: '16px',
-                  border: '1px solid #18181b',
-                  height: '100%',
-                  transition: 'all 0.3s ease',
-                  '&:hover': { borderColor: 'rgba(229, 193, 88, 0.3)', transform: 'translateY(-2px)' },
-                }}
+                className="bg-white rounded-2xl border border-black/[0.07] p-5 hover:border-[#2B2644]/20 hover:-translate-y-0.5 transition-all duration-300"
               >
-                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5 }}>
-                  {React.cloneElement(spec.icon, { sx: { color: '#e5c158', fontSize: 20 } })}
-                  <Typography variant="caption" sx={{ color: '#71717a', fontWeight: 700, letterSpacing: '0.08em', fontSize: '0.7rem' }}>
-                    {spec.label.toUpperCase()}
-                  </Typography>
-                </Stack>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#ffffff', mb: 0.5 }}>
-                  {spec.value}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#a1a1aa', fontSize: '0.82rem', lineHeight: 1.5 }}>
-                  {spec.detail}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-    </Box>
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon className="w-4 h-4 text-[#2B2644]" strokeWidth={2} />
+                  <span className="text-black/40 text-[10px] font-medium tracking-widest uppercase">{spec.label}</span>
+                </div>
+                <div className="text-black text-[18px] font-medium mb-1">{spec.value}</div>
+                <div className="text-black/45 text-[12px] leading-snug">{spec.detail}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

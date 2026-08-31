@@ -1,17 +1,31 @@
 ---
-name: Feature request
-about: Submit a proposal for a new feature
-title: ""
-labels: example-bboard, public
+name: Feature Request
+about: Suggest a new feature or improvement for CredShield
+title: "[FEAT] "
+labels: enhancement
 assignees: ""
 ---
 
-Feature Request: Clearly describe your feature, its benefits, and most important the expected outcome. This helps us analyze the proposed solution and develop alternatives
+## Summary
 
-#### Describe the proposed feature.
+<!-- A clear, one-sentence description of the feature -->
 
-#### User Need: What user need does this feature address? Include use cases and user stories.
+## Problem / motivation
 
-#### Benefit: What benefits does this feature provide to users and the platform?
+<!-- What problem does this solve? Why is it needed? -->
 
-#### Details: Proposed implementation ideas, alternatives considered, dependencies, and any additional information.
+## Proposed solution
+
+<!-- Describe how you'd like this to work -->
+
+## Privacy implications
+
+<!-- Does this change what an observer can or cannot learn on-chain? Describe the privacy impact -->
+
+## Alternatives considered
+
+<!-- Other approaches you've thought about -->
+
+## Additional context
+
+<!-- Mockups, references, or other helpful information -->

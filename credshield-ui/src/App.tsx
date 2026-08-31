@@ -11,8 +11,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Landing — full-screen, no AppLayout wrapper */}
+        <Route path="/" element={<Landing />} />
+
+        {/* All other pages keep the AppLayout (nav + footer) */}
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Landing />} />
           <Route path="/features" element={<Features />} />
           <Route path="/architecture" element={<Architecture />} />
           <Route path="/demo" element={<Demo />} />

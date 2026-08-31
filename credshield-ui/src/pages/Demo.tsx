@@ -1,22 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  Box,
-  Typography,
-  Stack,
-  Button,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Divider,
-  Container,
-  Chip,
-  Alert,
-  Paper,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import LockIcon from '@mui/icons-material/Lock';
-import ShieldIcon from '@mui/icons-material/Shield';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { Lock, Shield, EyeOff, Plus, AlertTriangle, X } from 'lucide-react';
 import { CredShieldCard, CredShieldHero } from '../components';
 import { useDeployedCredShieldContext } from '../contexts';
 import { useWallet } from '../contexts/WalletContext';
@@ -27,6 +16,7 @@ export default function Demo() {
   const credShieldManager = useDeployedCredShieldContext();
   const wallet = useWallet();
   const [deployments, setDeployments] = useState<Array<Observable<CredShieldDeployment>>>([]);
+  const [walletErrDismissed, setWalletErrDismissed] = useState(false);
 
   const activeCardsRef = useRef<HTMLDivElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
@@ -35,6 +25,11 @@ export default function Demo() {
     const sub = credShieldManager.deployments$.subscribe(setDeployments);
     return () => sub.unsubscribe();
   }, [credShieldManager]);
+
+  // Reset dismiss when error changes
+  useEffect(() => {
+    setWalletErrDismissed(false);
+  }, [wallet.errorMessage]);
 
   const handleDeployNew = () => {
     credShieldManager.resolve();
@@ -48,23 +43,76 @@ export default function Demo() {
 
   const handleRetryConnect = async () => {
     await wallet.connect();
-    setTimeout(() => {
-      credShieldManager.retry();
-    }, 500);
+    setTimeout(() => { credShieldManager.retry(); }, 500);
   };
 
   const scrollToActiveCard = () => {
-    setTimeout(() => {
-      activeCardsRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    setTimeout(() => { activeCardsRef.current?.scrollIntoView({ behavior: 'smooth' }); }, 100);
   };
 
   const scrollToGuide = () => {
     guideRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const guideSteps = [
+    {
+      title: '1. How Compact Contracts Are Compiled',
+      content: (
+        <>
+          <p className="text-black/55 text-[13px] leading-relaxed mb-3">
+            The contract is written in Compact (<code className="text-[#2B2644] font-mono">contract/src/credshield.compact</code>).
+            It defines the <code className="text-[#2B2644] font-mono">CredentialState</code> enum, ledger counters, and zero-knowledge circuit methods:
+          </p>
+          <pre className="bg-[#2B2644] rounded-xl p-4 text-[#AFDDFF] font-mono text-[12px] overflow-x-auto">{`cd contract
+yarn compact # Compiles Compact contract into ZK proving keys & TypeScript bindings
+yarn build   # Builds @midnight-ntwrk/credshield-contract`}</pre>
+        </>
+      ),
+    },
+    {
+      title: '2. Running the Interactive CLI Runner',
+      content: (
+        <>
+          <p className="text-black/55 text-[13px] leading-relaxed mb-3">
+            Credential issuance and verification can be performed directly via the Web UI (using <strong>Lace / 1AM Wallet</strong>) or via CLI:
+          </p>
+          <pre className="bg-[#2B2644] rounded-xl p-4 text-[#AFDDFF] font-mono text-[12px] overflow-x-auto">{`cd credshield-cli
+yarn build
+npm run preprod-remote # Connects to Midnight Preprod Testnet & launches CLI menu`}</pre>
+        </>
+      ),
+    },
+    {
+      title: '3. Contract Address Format & Testnet Verification',
+      content: (
+        <p className="text-black/55 text-[13px] leading-relaxed">
+          Midnight contract addresses are 32 bytes long (64 hex characters). Example:<br />
+          <code className="text-[#2B2644] font-mono break-all">0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5</code>
+        </p>
+      ),
+    },
+    {
+      title: '4. Starting the Proof Server',
+      content: (
+        <>
+          <p className="text-black/55 text-[13px] leading-relaxed mb-3">
+            The Proof Server handles ZK proof generation. It starts automatically with Docker Compose:
+          </p>
+          <pre className="bg-[#2B2644] rounded-xl p-4 text-[#AFDDFF] font-mono text-[12px] overflow-x-auto">{`# Start all services (node + indexer + proof server)
+docker compose -f standalone.yml up -d
+
+# Verify proof server is running
+curl http://localhost:6300`}</pre>
+          <p className="text-[#2B2644] text-[13px] mt-3 font-medium">
+            ⚡ Note: ZK proof generation takes 30–60 seconds per circuit call. A loading indicator is shown during proof generation.
+          </p>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <Box sx={{ py: 2 }}>
+    <div className="py-2">
       <CredShieldHero
         onIssueClick={handleDeployNew}
         onVerifyClick={scrollToActiveCard}
@@ -72,189 +120,127 @@ export default function Demo() {
       />
 
       {/* Privacy Model Banner */}
-      <Container maxWidth="lg" disableGutters sx={{ mb: 4 }}>
-        <Paper
-          elevation={0}
-          sx={{
-            bgcolor: 'rgba(229, 193, 88, 0.06)',
-            border: '1px solid rgba(229, 193, 88, 0.2)',
-            borderRadius: '14px',
-            p: 3,
-          }}
-        >
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'flex-start', sm: 'center' }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
-              <LockIcon sx={{ color: '#e5c158', fontSize: 20, flexShrink: 0 }} />
-              <Typography variant="subtitle2" sx={{ color: '#e5c158', fontWeight: 800, letterSpacing: '0.05em' }}>
-                PRIVACY MODEL
-              </Typography>
-            </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} flexWrap="wrap">
-              <Chip
-                icon={<VisibilityOffIcon sx={{ fontSize: 14, color: '#a1a1aa !important' }} />}
-                label="secretKey: PRIVATE WITNESS — never disclosed on-chain"
-                size="small"
-                sx={{ bgcolor: '#18181b', color: '#a1a1aa', border: '1px solid #27272a', fontSize: '0.72rem', height: 'auto', py: 0.5 }}
-              />
-              <Chip
-                icon={<ShieldIcon sx={{ fontSize: 14, color: '#22c55e !important' }} />}
-                label="issuerAuthority: PUBLIC commitment (one-way hash)"
-                size="small"
-                sx={{ bgcolor: '#18181b', color: '#a1a1aa', border: '1px solid #27272a', fontSize: '0.72rem', height: 'auto', py: 0.5 }}
-              />
-              <Chip
-                icon={<LockIcon sx={{ fontSize: 14, color: '#e5c158 !important' }} />}
-                label="ZK proof: generated locally, never raw key"
-                size="small"
-                sx={{ bgcolor: '#18181b', color: '#a1a1aa', border: '1px solid #27272a', fontSize: '0.72rem', height: 'auto', py: 0.5 }}
-              />
-            </Stack>
-          </Stack>
-        </Paper>
-      </Container>
+      <div className="mb-6 bg-[#2B2644]/6 border border-[#2B2644]/15 rounded-2xl p-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Lock className="w-4 h-4 text-[#2B2644]" strokeWidth={2} />
+            <span className="text-[#2B2644] text-[12px] font-medium tracking-wider uppercase">Privacy Model</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/5 border border-black/8 text-black/55 text-[11px]">
+              <EyeOff className="w-3 h-3" strokeWidth={2} />
+              secretKey: PRIVATE WITNESS — never disclosed on-chain
+            </span>
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/5 border border-black/8 text-black/55 text-[11px]">
+              <Shield className="w-3 h-3" strokeWidth={2} />
+              issuerAuthority: PUBLIC commitment (one-way hash)
+            </span>
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/5 border border-black/8 text-black/55 text-[11px]">
+              <Lock className="w-3 h-3" strokeWidth={2} />
+              ZK proof: generated locally, never raw key
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Wallet Warning */}
-      {wallet.status === 'error' && wallet.errorMessage && (
-        <Container maxWidth="lg" disableGutters sx={{ mb: 3 }}>
-          <Alert
-            severity="warning"
-            sx={{ bgcolor: '#1a1600', color: '#fbbf24', border: '1px solid #422006', borderRadius: '12px' }}
-            action={
-              <Button
-                size="small"
-                sx={{ color: '#fbbf24', fontWeight: 700 }}
-                onClick={handleRetryConnect}
-              >
-                Retry
-              </Button>
-            }
-          >
+      {wallet.status === 'error' && wallet.errorMessage && !walletErrDismissed && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" strokeWidth={2} />
+          <div className="flex-1 text-amber-800 text-[13px] leading-relaxed">
             {wallet.errorMessage} Please install the Lace or 1AM Wallet browser extension and connect.
-          </Alert>
-        </Container>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleRetryConnect}
+              className="text-amber-700 text-[12px] font-medium hover:text-amber-900 transition-colors"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => setWalletErrDismissed(true)}
+              className="text-amber-400 hover:text-amber-600 transition-colors"
+              aria-label="Dismiss"
+            >
+              <X className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </div>
+        </div>
       )}
 
-      <Container maxWidth="lg" disableGutters sx={{ mb: 6 }} ref={activeCardsRef}>
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 3, gap: 2 }}
-        >
-          <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
+      {/* Active Credential Instances */}
+      <div className="mb-10" ref={activeCardsRef}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <h2 className="text-black text-[1.4rem] font-medium tracking-[-0.02em]">
             Active Credential Instances ({deployments.length})
-          </Typography>
-
-          <Button
-            variant="outlined"
-            size="small"
+          </h2>
+          <button
             onClick={handleDeployNew}
-            sx={{
-              borderColor: '#27272a',
-              color: '#ffffff',
-              borderRadius: '8px',
-              px: 2,
-              '&:hover': { borderColor: '#ffffff', bgcolor: 'rgba(255,255,255,0.05)' },
-            }}
+            className="flex items-center gap-1.5 border border-black/15 text-black/70 rounded-xl px-4 py-2 text-[13px] font-medium hover:border-[#2B2644]/30 hover:text-[#2B2644] transition-all duration-200 self-start sm:self-auto"
           >
-            + Deploy Credential Contract
-          </Button>
-        </Stack>
+            <Plus className="w-4 h-4" strokeWidth={2} />
+            Deploy Credential Contract
+          </button>
+        </div>
 
-        <Stack spacing={4}>
+        <div className="flex flex-col gap-6">
           {deployments.map((deployment$, idx) => (
-            <Box key={`deployment-${idx}`} data-testid={`credshield-card-${idx}`}>
+            <div key={`deployment-${idx}`} data-testid={`credshield-card-${idx}`}>
               <CredShieldCard
                 deployment$={deployment$}
                 onQuickJoinPreprod={handleJoinContract}
                 onRetryConnect={handleRetryConnect}
               />
-            </Box>
+            </div>
           ))}
-
           {deployments.length === 0 && (
-            <Box data-testid="default-credshield-card">
+            <div data-testid="default-credshield-card">
               <CredShieldCard
                 onQuickJoinPreprod={handleJoinContract}
                 onRetryConnect={handleRetryConnect}
               />
-            </Box>
+            </div>
           )}
-        </Stack>
-      </Container>
+        </div>
+      </div>
 
-      <Divider sx={{ my: 6, borderColor: '#18181b' }} />
+      {/* Divider */}
+      <div className="h-px bg-black/[0.06] mb-10" />
 
-      <Box ref={guideRef} sx={{ mb: 6 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, letterSpacing: '-0.02em', color: '#ffffff' }}>
+      {/* Guide Section */}
+      <div ref={guideRef} className="mb-6">
+        <h2 className="text-black text-[1.4rem] font-medium tracking-[-0.02em] mb-6">
           Smart Contract & CLI Execution Guide
-        </Typography>
+        </h2>
 
-        <Accordion sx={{ bgcolor: '#09090c', border: '1px solid #18181b', color: '#fff', borderRadius: '14px !important', mb: 2, '&:before': { display: 'none' } }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>1. How Compact Contracts Are Compiled</Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ color: '#a1a1aa', borderTop: '1px solid #18181b', p: 3 }}>
-            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-              The contract is written in Compact (<code>contract/src/credshield.compact</code>).
-              It defines the <code>CredentialState</code> enum, ledger counters, and zero-knowledge circuit methods:
-            </Typography>
-            <Box component="pre" sx={{ bgcolor: '#030304', p: 2, borderRadius: '8px', overflowX: 'auto', border: '1px solid #18181b', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-{`cd contract
-yarn compact # Compiles Compact contract into ZK proving keys & TypeScript bindings
-yarn build   # Builds @midnight-ntwrk/credshield-contract`}
-            </Box>
-          </AccordionDetails>
-        </Accordion>
-
-        <Accordion sx={{ bgcolor: '#09090c', border: '1px solid #18181b', color: '#fff', borderRadius: '14px !important', mb: 2, '&:before': { display: 'none' } }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>2. Running the Interactive CLI Runner</Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ color: '#a1a1aa', borderTop: '1px solid #18181b', p: 3 }}>
-            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-              Credential issuance and verification can be performed directly via the Web UI (using <strong>Lace / 1AM Wallet</strong>) or via CLI:
-            </Typography>
-            <Box component="pre" sx={{ bgcolor: '#030304', p: 2, borderRadius: '8px', overflowX: 'auto', border: '1px solid #18181b', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-{`cd credshield-cli
-yarn build
-npm run preprod-remote # Connects to Midnight Preprod Testnet & launches CLI menu`}
-            </Box>
-          </AccordionDetails>
-        </Accordion>
-
-        <Accordion sx={{ bgcolor: '#09090c', border: '1px solid #18181b', color: '#fff', borderRadius: '14px !important', mb: 2, '&:before': { display: 'none' } }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>3. Contract Address Format & Testnet Verification</Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ color: '#a1a1aa', borderTop: '1px solid #18181b', p: 3 }}>
-            <Typography variant="body2" sx={{ lineHeight: 1.7 }}>
-              Midnight contract addresses are 32 bytes long (64 hex characters). Example:
-              <br />
-              <code style={{ color: '#ffffff' }}>0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5</code>
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
-
-        <Accordion sx={{ bgcolor: '#09090c', border: '1px solid #18181b', color: '#fff', borderRadius: '14px !important', mb: 2, '&:before': { display: 'none' } }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#fff' }} />}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>4. Starting the Proof Server</Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ color: '#a1a1aa', borderTop: '1px solid #18181b', p: 3 }}>
-            <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-              The Proof Server handles ZK proof generation. It starts automatically with Docker Compose:
-            </Typography>
-            <Box component="pre" sx={{ bgcolor: '#030304', p: 2, borderRadius: '8px', overflowX: 'auto', border: '1px solid #18181b', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-{`# Start all services (node + indexer + proof server)
-docker compose -f standalone.yml up -d
-
-# Verify proof server is running
-curl http://localhost:6300`}
-            </Box>
-            <Typography variant="body2" sx={{ mt: 2, color: '#e5c158' }}>
-              ⚡ Note: ZK proof generation takes 30–60 seconds per circuit call. A loading indicator is shown during proof generation.
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
-      </Box>
-    </Box>
+        <div className="flex flex-col gap-3">
+          {guideSteps.map((step) => (
+            <Accordion
+              key={step.title}
+              sx={{
+                bgcolor: '#ffffff',
+                border: '1px solid rgba(0,0,0,0.07)',
+                borderRadius: '16px !important',
+                boxShadow: 'none',
+                color: '#000',
+                mb: 0,
+                '&:before': { display: 'none' },
+                '&.Mui-expanded': { borderColor: 'rgba(43,38,68,0.2)' },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon sx={{ color: 'rgba(0,0,0,0.4)' }} />}
+                sx={{ px: 3, py: 1 }}
+              >
+                <span style={{ fontWeight: 500, fontSize: '14px', color: '#000' }}>{step.title}</span>
+              </AccordionSummary>
+              <AccordionDetails sx={{ borderTop: '1px solid rgba(0,0,0,0.06)', px: 3, pt: 2.5, pb: 3 }}>
+                {step.content}
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,44 +1,59 @@
 version: 2
 updates:
+  # Keep GitHub Actions up-to-date
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
-      - 'dependencies'
-      - 'github-actions'
+      - "dependencies"
+      - "github-actions"
 
+  # Root monorepo npm packages
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
     labels:
-      - 'dependencies'
-      - 'npm'
+      - "dependencies"
+      - "npm"
 
+  # Compact contract package
   - package-ecosystem: "npm"
     directory: "/contract"
     schedule:
       interval: "weekly"
     labels:
-      - 'dependencies'
-      - 'npm'
-      - 'contract'
+      - "dependencies"
+      - "npm"
+      - "contract"
 
+  # API package
+  - package-ecosystem: "npm"
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "api"
+
+  # CLI package
   - package-ecosystem: "npm"
     directory: "/credshield-cli"
     schedule:
       interval: "weekly"
     labels:
-      - 'dependencies'
-      - 'npm'
-      - 'credshield-cli'
+      - "dependencies"
+      - "npm"
+      - "credshield-cli"
 
+  # UI package
   - package-ecosystem: "npm"
     directory: "/credshield-ui"
     schedule:
       interval: "weekly"
     labels:
-      - 'dependencies'
-      - 'npm'
-      - 'credshield-ui'
+      - "dependencies"
+      - "npm"
+      - "credshield-ui"

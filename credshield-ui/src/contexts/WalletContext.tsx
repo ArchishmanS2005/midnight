@@ -30,7 +30,7 @@ export interface WalletState {
 }
 
 export interface WalletContextValue extends WalletState {
-  connect: () => Promise<void>;
+  connect: () => Promise<boolean>;
   disconnect: () => void;
 }
 
@@ -94,7 +94,7 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
         errorMessage:
           'Lace / 1AM Wallet extension not detected. Please install the Lace or 1AM Wallet browser extension and refresh.',
       }));
-      return;
+      return false;
     }
 
     const walletName = wallet.name ?? 'Lace / 1AM Wallet';
@@ -124,9 +124,30 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
         errorMessage: null,
         connectedAPI,
       });
+      return true;
     } catch (err: unknown) {
       console.error('WALLET CONNECT ERROR:', err);
-      const msg = err instanceof Error ? err.message : 'Failed to authorize wallet connection.';
+      // APIError from the DApp Connector has a numeric `code` and string `info` field instead of `message`
+      let msg = 'Failed to authorize wallet connection.';
+      if (err && typeof err === 'object') {
+        const apiErr = err as Record<string, unknown>;
+        if (typeof apiErr['info'] === 'string' && apiErr['info'].trim() !== '') {
+          msg = apiErr['info'];
+        } else if (typeof apiErr['message'] === 'string' && apiErr['message'].trim() !== '' && apiErr['message'] !== 'APIError') {
+          msg = apiErr['message'];
+        } else if (err instanceof Error && err.message !== 'APIError') {
+          msg = err.message;
+        }
+      }
+      // Provide a clearer hint if the user simply dismissed the wallet popup or had a network mismatch
+      if (msg.includes('Network ID mismatch')) {
+        msg = `Network mismatch detected. The app requires the '${NETWORK_ID}' network. Please switch your wallet to the correct network and try again.`;
+      } else if (!msg || msg.trim() === '' || msg === 'Failed to authorize wallet connection.') {
+        msg = 'Wallet authorization was rejected or timed out. Please approve the connection in your Lace / 1AM Wallet popup.';
+      }
+      
+      console.error('Reason:', msg);
+
       setState((s) => ({
         ...s,
         status: 'error',
@@ -136,6 +157,7 @@ export const WalletProvider: React.FC<PropsWithChildren> = ({ children }) => {
         connectedAPI: null,
       }));
       connectedAPIRef.current = null;
+      return false;
     }
   }, []);
 

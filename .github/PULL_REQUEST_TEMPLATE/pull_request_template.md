@@ -1,26 +1,37 @@
 ## Overview
 
-<!-- Describe your changes briefly here, with some context as to why this is needed. -->
+<!-- Describe what this PR does and why it is needed -->
+
+## Type of change
+
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Refactor / code cleanup
+- [ ] Documentation update
+- [ ] CI/CD change
+- [ ] Dependency update
+
+## Affected packages
+
+- [ ] `contract` (Compact ZK circuits)
+- [ ] `api`
+- [ ] `credshield-cli`
+- [ ] `credshield-ui`
+- [ ] `.github` / CI/CD
+- [ ] Root / docs
+
+## Privacy impact
+
+<!-- Does this change what an observer can or cannot learn on-chain? If yes, describe -->
+
+- [ ] No privacy impact
+- [ ] Privacy impact described above
 
 ## Submission Checklist
 
-<!-- Please check all the boxes that apply to your pull request. -->
-
-- [ ] Useful pull request description
-- [ ] Tests are provided (if possible)
-- [ ] Key commits have useful messages
-- [ ] All check jobs of the CI have succeeded
-- [ ] Self-reviewed the diff
-- [ ] Reviewer requested
-- [ ] Update README file (if relevant)
-- [ ] Update documentation (if relevant)
-- [ ] No new TODOs introduced
-
-## Links
-
-<!--
-- Link any relevant Confluence or additional Jira tickets if need be
-- If your PR closes some of the existing issues, please add links to them here.
-  Mentioned issues will be automatically closed.
-  Usage: "Closes #<issue number>", or "Closes (paste link of issue)"
--->
+- [ ] PR description is clear and complete
+- [ ] Tests added / updated (≥3 contract tests must pass)
+- [ ] `npm run ci` passes locally in all affected packages
+- [ ] All CI jobs are green
+- [ ] Commits have meaningful messages
+- [ ] Documentation updated if needed

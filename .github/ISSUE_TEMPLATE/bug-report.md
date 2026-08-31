@@ -1,17 +1,44 @@
 ---
-name: Bug report
-about: Submit a bug report
-title: ""
-labels: example-bboard, public
+name: Bug Report
+about: Report a bug in CredShield (contract, CLI, API, or UI)
+title: "[BUG] "
+labels: bug
 assignees: ""
 ---
 
-Bug Report: Provide detailed information about the issue, including steps to reproduce it, expected behavior, and actual behaviour, screenshots or any other relevant information
+## Describe the bug
 
-#### Describe what the problem is
+<!-- A clear description of what the bug is -->
 
-#### What should be the expected behavior or results?
+## Affected component
 
-#### What was the actual behavior or results?
+- [ ] Compact contract / ZK circuits
+- [ ] API layer
+- [ ] CLI
+- [ ] React UI (credshield-ui)
+- [ ] Wallet connection / private state
+- [ ] Other
 
-#### Provide any other clarifying details that would help in reproducing or identifying the issue
+## Steps to reproduce
+
+1.
+2.
+3.
+
+## Expected behavior
+
+<!-- What you expected to happen -->
+
+## Actual behavior
+
+<!-- What actually happened. Include error output, stack traces, or screenshots where relevant -->
+
+## Environment
+
+- Node version: `node -v`
+- Network: `standalone` / `preprod` / `preview`
+- Compact compiler version (if relevant): `compact --version`
+
+## Additional context
+
+<!-- Any other details that would help reproduce or identify the issue -->

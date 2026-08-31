@@ -1,27 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-  Chip,
   LinearProgress,
   Alert,
   CircularProgress,
-  Stack,
-  Divider,
   TextField,
   Tooltip,
 } from '@mui/material';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import ShieldIcon from '@mui/icons-material/Shield';
-import SecurityIcon from '@mui/icons-material/Security';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import BlockIcon from '@mui/icons-material/Block';
-import LockIcon from '@mui/icons-material/Lock';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { Shield, CheckCircle, Lock, EyeOff, Copy, Ban, Wallet } from 'lucide-react';
 import { type Observable } from 'rxjs';
 import { type CredShieldDeployment } from '../contexts';
 import { type CredShieldDerivedState } from '@midnight-ntwrk/credshield-api';
@@ -33,7 +18,7 @@ export type CredShieldCardProps = {
   onRetryConnect?: () => void;
 };
 
-// ZK proof stage labels for the loading indicator
+// ZK proof stage labels
 const ZK_STAGES = [
   'Initializing ZK circuit…',
   'Loading proving keys…',
@@ -46,26 +31,19 @@ const useZkStageRotation = (active: boolean) => {
   const [stage, setStage] = useState(0);
   useEffect(() => {
     if (!active) { setStage(0); return; }
-    const interval = setInterval(() => {
-      setStage((s) => (s + 1) % ZK_STAGES.length);
-    }, 5000);
+    const interval = setInterval(() => { setStage((s) => (s + 1) % ZK_STAGES.length); }, 5000);
     return () => clearInterval(interval);
   }, [active]);
   return ZK_STAGES[stage];
 };
 
-export const CredShieldCard: React.FC<CredShieldCardProps> = ({
-  deployment$,
-  onRetryConnect,
-}) => {
+export const CredShieldCard: React.FC<CredShieldCardProps> = ({ deployment$, onRetryConnect }) => {
   const [deployment, setDeployment] = useState<CredShieldDeployment | undefined>(undefined);
   const [derivedState, setDerivedState] = useState<CredShieldDerivedState | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [actionMessage, setActionMessage] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
-
-  // Form input state for credential issuance
   const [titleInput, setTitleInput] = useState<string>('BSc Computer Science & ZK Cryptography');
 
   const zkStageLabel = useZkStageRotation(isSubmitting);
@@ -99,215 +77,200 @@ export const CredShieldCard: React.FC<CredShieldCardProps> = ({
   const handleIssueCredential = async () => {
     if (!deployment || deployment.status !== 'deployed') return;
     try {
-      setIsSubmitting(true);
-      setErrorMsg('');
-      setActionMessage('');
+      setIsSubmitting(true); setErrorMsg(''); setActionMessage('');
       const rawId = getRandomBytes(32);
       await deployment.api.issueCredential(rawId, titleInput.trim());
       setActionMessage('✅ Credential successfully issued and recorded on Midnight!');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to issue credential';
       setErrorMsg(`Issuance failed: ${msg}. Check wallet connection and proof server (port 6300).`);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } finally { setIsSubmitting(false); }
   };
 
   const handleVerifyCredential = async () => {
     if (!deployment || deployment.status !== 'deployed' || !derivedState?.credentialId) return;
     try {
-      setIsSubmitting(true);
-      setErrorMsg('');
-      setActionMessage('');
+      setIsSubmitting(true); setErrorMsg(''); setActionMessage('');
       const idBytes = Uint8Array.from(Buffer.from(derivedState.credentialId, 'hex'));
       await deployment.api.verifyCredential(idBytes);
       setActionMessage('✅ Credential verified via ZK Proof! secretKey never left your device. totalVerified counter updated on-chain.');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to verify credential';
       setErrorMsg(`Verification failed: ${msg}. Ensure the credential ID matches and the proof server is running.`);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } finally { setIsSubmitting(false); }
   };
 
   const handleRevokeCredential = async () => {
     if (!deployment || deployment.status !== 'deployed') return;
     try {
-      setIsSubmitting(true);
-      setErrorMsg('');
-      setActionMessage('');
+      setIsSubmitting(true); setErrorMsg(''); setActionMessage('');
       await deployment.api.revokeCredential();
       setActionMessage('✅ Credential revoked on-chain by issuer authority!');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to revoke credential';
       setErrorMsg(`Revocation failed: ${msg}. Only the authorized issuer can revoke this credential.`);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } finally { setIsSubmitting(false); }
   };
 
+  // ── Loading state ──────────────────────────────────────────
   if (!deployment) {
     return (
-      <Card sx={{ bgcolor: '#09090c', color: '#fff', borderRadius: '16px', border: '1px solid #18181b', p: 4, textAlign: 'center' }}>
-        <CardContent sx={{ py: 3 }}>
-          <CircularProgress size={32} sx={{ color: '#e5c158', mb: 2 }} />
-          <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, color: '#ffffff' }}>
-            Initializing CredShield…
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#71717a', mb: 3 }}>
-            Connecting to Midnight network and loading ZK circuit artifacts.
-          </Typography>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl border border-black/[0.07] p-10 text-center">
+        <CircularProgress size={32} sx={{ color: '#2B2644', mb: 2 }} />
+        <div className="text-black text-[16px] font-medium mb-1 mt-3">Initializing CredShield…</div>
+        <div className="text-black/45 text-[13px]">Connecting to Midnight network and loading ZK circuit artifacts.</div>
+      </div>
     );
   }
 
+  // ── In-progress state ──────────────────────────────────────
   if (deployment.status === 'in-progress') {
     return (
-      <Card sx={{ bgcolor: '#09090c', color: '#fff', borderRadius: '16px', border: '1px solid #18181b', p: 4, textAlign: 'center' }}>
-        <CardContent sx={{ py: 3 }}>
-          <CircularProgress size={40} thickness={3} sx={{ color: '#e5c158', mb: 2 }} />
-          <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, color: '#ffffff' }}>
-            Deploying Contract & Loading ZK Circuits
-          </Typography>
-          <LinearProgress sx={{ mb: 2, borderRadius: 1, bgcolor: '#18181b', '& .MuiLinearProgress-bar': { bgcolor: '#e5c158' } }} />
-          <Typography variant="body2" sx={{ color: '#71717a', mb: 1 }}>
-            Connecting wallet → Loading circuit proving keys → Deploying contract…
-          </Typography>
-          <Chip
-            icon={<LockIcon sx={{ fontSize: 14, color: '#a1a1aa !important' }} />}
-            label="🔒 secretKey: PRIVATE WITNESS — never leaves your device"
-            size="small"
-            sx={{ bgcolor: '#18181b', color: '#a1a1aa', border: '1px solid #27272a', fontSize: '0.72rem' }}
-          />
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl border border-black/[0.07] p-10 text-center">
+        <CircularProgress size={40} thickness={3} sx={{ color: '#2B2644', mb: 2 }} />
+        <div className="text-black text-[16px] font-medium mb-3 mt-3">Deploying Contract & Loading ZK Circuits</div>
+        <LinearProgress sx={{ mb: 3, borderRadius: 1, bgcolor: '#F5F5F5', '& .MuiLinearProgress-bar': { bgcolor: '#2B2644' } }} />
+        <div className="text-black/45 text-[12px] mb-4">Connecting wallet → Loading circuit proving keys → Deploying contract…</div>
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2B2644]/8 border border-[#2B2644]/15 text-[#2B2644] text-[11px]">
+          <Lock className="w-3 h-3" strokeWidth={2} />
+          secretKey: PRIVATE WITNESS — never leaves your device
+        </span>
+      </div>
     );
   }
 
+  // ── Failed state ───────────────────────────────────────────
   if (deployment.status === 'failed') {
     return (
-      <Card sx={{ bgcolor: '#09090c', color: '#fff', borderRadius: '16px', border: '1px solid #3b1212', p: 4 }}>
-        <CardContent sx={{ py: 3 }}>
-          <Alert severity="error" sx={{ mb: 3, bgcolor: '#180e0e', color: '#f87171', border: '1px solid #3b1212', borderRadius: '10px' }}>
-            <strong>Connection Failed:</strong> {String(deployment.error ?? 'Unknown error')}
-            <br /><br />
-            <strong>Troubleshooting:</strong>
-            <ul style={{ margin: '8px 0 0', paddingLeft: 20 }}>
-              <li>Ensure Lace or 1AM Wallet is installed and unlocked</li>
-              <li>Run: <code>docker compose -f standalone.yml up -d</code></li>
-              <li>Verify proof server: <code>curl http://localhost:6300</code></li>
-              <li>Set wallet network to &quot;Undeployed&quot;</li>
-            </ul>
-          </Alert>
-          <Button
-            variant="outlined"
-            startIcon={<AccountBalanceWalletIcon />}
-            onClick={onRetryConnect}
-            sx={{ borderColor: '#52525b', color: '#ffffff', borderRadius: '10px', px: 3, '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.05)' } }}
-          >
-            Connect Wallet & Retry
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl border border-red-100 p-6">
+        <Alert
+          severity="error"
+          sx={{ mb: 3, bgcolor: '#fff5f5', color: '#c53030', border: '1px solid #fed7d7', borderRadius: '12px' }}
+        >
+          <strong>Connection Failed:</strong> {String(deployment.error ?? 'Unknown error')}
+          <br /><br />
+          <strong>Troubleshooting:</strong>
+          <ul style={{ margin: '8px 0 0', paddingLeft: 20 }}>
+            <li>Ensure Lace or 1AM Wallet is installed and unlocked</li>
+            <li>Run: <code>docker compose -f standalone.yml up -d</code></li>
+            <li>Verify proof server: <code>curl http://localhost:6300</code></li>
+            <li>Set wallet network to &quot;Undeployed&quot;</li>
+          </ul>
+        </Alert>
+        <button
+          onClick={onRetryConnect}
+          className="flex items-center gap-2 border border-black/15 text-black/70 rounded-xl px-4 py-2.5 text-[13px] font-medium hover:border-[#2B2644]/30 hover:text-[#2B2644] transition-all duration-200"
+        >
+          <Wallet className="w-4 h-4" strokeWidth={1.5} />
+          Connect Wallet & Retry
+        </button>
+      </div>
     );
   }
 
-  const isUninit = derivedState?.credentialState === CredentialState.UNINITIALIZED;
-  const isActive = derivedState?.credentialState === CredentialState.ACTIVE;
+  // ── Main deployed state ────────────────────────────────────
+  const isUninit  = derivedState?.credentialState === CredentialState.UNINITIALIZED;
+  const isActive  = derivedState?.credentialState === CredentialState.ACTIVE;
   const isRevoked = derivedState?.credentialState === CredentialState.REVOKED;
 
-  const totalIssued = Number(derivedState?.totalIssued ?? 0n);
+  const totalIssued   = Number(derivedState?.totalIssued ?? 0n);
   const totalVerified = Number(derivedState?.totalVerified ?? 0n);
 
   return (
-    <Card sx={{ bgcolor: '#09090c', color: '#fff', borderRadius: '16px', border: '1px solid #18181b', boxShadow: '0 8px 32px rgba(0,0,0,0.8)', p: 1 }}>
-      <CardContent sx={{ p: { xs: 2, sm: 3.5 } }}>
-        {/* Header Badges */}
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 2.5, gap: 1 }}
-        >
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <ShieldIcon sx={{ color: '#ffffff', fontSize: 18 }} />
-            <Typography variant="caption" sx={{ color: '#a1a1aa', fontWeight: 700, letterSpacing: '0.1em' }}>
-              ZERO-KNOWLEDGE VERIFIABLE CREDENTIAL
-            </Typography>
-          </Stack>
+    <div className="bg-white rounded-2xl border border-black/[0.07] shadow-sm overflow-hidden">
+      <div className="p-5 sm:p-7">
 
-          <Stack direction="row" spacing={1} alignItems="center">
-            {isUninit && <Chip label="UNINITIALIZED" size="small" sx={{ bgcolor: '#27272a', color: '#e4e4e7', fontWeight: 700, fontSize: '0.7rem' }} />}
-            {isActive && <Chip label="CREDENTIAL ACTIVE" size="small" sx={{ bgcolor: '#ffffff', color: '#000000', fontWeight: 800, fontSize: '0.7rem' }} icon={<VerifiedUserIcon sx={{ color: '#000 !important' }} />} />}
-            {isRevoked && <Chip label="REVOKED" size="small" sx={{ bgcolor: '#18181b', color: '#ef4444', border: '1px solid #7f1d1d', fontWeight: 700, fontSize: '0.7rem' }} icon={<BlockIcon sx={{ color: '#ef4444 !important' }} />} />}
-          </Stack>
-        </Stack>
+        {/* Header row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-black/40" strokeWidth={1.5} />
+            <span className="text-black/40 text-[11px] font-medium tracking-widest uppercase">
+              Zero-Knowledge Verifiable Credential
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isUninit  && <span className="px-2.5 py-1 rounded-full bg-black/5 text-black/50 text-[11px] font-medium">UNINITIALIZED</span>}
+            {isActive  && (
+              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#2B2644] text-white text-[11px] font-medium">
+                <CheckCircle className="w-3 h-3" strokeWidth={2} /> CREDENTIAL ACTIVE
+              </span>
+            )}
+            {isRevoked && (
+              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-600 text-[11px] font-medium border border-red-200">
+                <Ban className="w-3 h-3" strokeWidth={2} /> REVOKED
+              </span>
+            )}
+          </div>
+        </div>
 
-        {/* Privacy Label */}
+        {/* Privacy label */}
         <Tooltip title="The secretKey witness is computed locally in the ZK circuit and never transmitted or stored on the ledger." placement="top">
-          <Chip
-            icon={<VisibilityOffIcon sx={{ fontSize: 13, color: '#a1a1aa !important' }} />}
-            label="🔒 secretKey: PRIVATE WITNESS — never disclosed on-chain"
-            size="small"
-            sx={{ bgcolor: '#121216', color: '#a1a1aa', border: '1px solid #27272a', fontSize: '0.7rem', mb: 2.5, cursor: 'help' }}
-          />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#2B2644]/6 border border-[#2B2644]/12 text-[#2B2644] text-[11px] mb-4 cursor-help">
+            <EyeOff className="w-3 h-3" strokeWidth={2} />
+            secretKey: PRIVATE WITNESS — never disclosed on-chain
+          </span>
         </Tooltip>
 
         {/* Title */}
-        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, color: '#ffffff', letterSpacing: '-0.03em', fontSize: { xs: '1.4rem', sm: '2.125rem' } }}>
+        <h3 className="text-black text-[1.6rem] sm:text-[2rem] font-medium tracking-[-0.03em] leading-tight mb-2">
           {derivedState?.credentialMetadata ?? 'CredShield Verifiable Credential'}
-        </Typography>
+        </h3>
 
-        {/* Address */}
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 3, flexWrap: 'wrap' }}>
-          <Typography variant="caption" sx={{ color: '#71717a', fontFamily: 'monospace', wordBreak: 'break-all' }}>
-            Contract: <span style={{ color: '#ffffff' }}>{deployment.api.deployedContractAddress}</span>
-          </Typography>
-          <Button size="small" startIcon={<ContentCopyIcon sx={{ fontSize: 14 }} />} sx={{ color: '#a1a1aa', py: 0.2, minWidth: 0 }} onClick={copyAddress}>
+        {/* Contract address */}
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
+          <span className="text-black/35 text-[11px] font-mono break-all">
+            Contract: <span className="text-black/60">{deployment.api.deployedContractAddress}</span>
+          </span>
+          <button
+            onClick={copyAddress}
+            className="flex items-center gap-1 text-black/35 hover:text-[#2B2644] text-[11px] transition-colors"
+          >
+            <Copy className="w-3 h-3" strokeWidth={2} />
             {copied ? 'Copied!' : 'Copy'}
-          </Button>
-        </Stack>
+          </button>
+        </div>
 
         {/* ZK Proof Loading Indicator */}
         {isSubmitting && (
-          <Box sx={{ mb: 2.5, p: 2.5, bgcolor: '#0a0f1a', border: '1px solid #1e3a5f', borderRadius: '12px' }}>
-            <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1.5 }}>
-              <CircularProgress size={20} thickness={4} sx={{ color: '#60a5fa', flexShrink: 0 }} />
-              <Typography variant="body2" sx={{ color: '#60a5fa', fontWeight: 700 }}>
-                {zkStageLabel}
-              </Typography>
-            </Stack>
-            <LinearProgress sx={{ borderRadius: 1, bgcolor: '#1e3a5f', '& .MuiLinearProgress-bar': { bgcolor: '#60a5fa' } }} />
-            <Typography variant="caption" sx={{ color: '#52525b', mt: 1, display: 'block' }}>
-              ZK proof generation runs locally — your private key never leaves this device.
-            </Typography>
-          </Box>
+          <div className="mb-5 p-4 bg-[#2B2644]/5 border border-[#2B2644]/15 rounded-xl">
+            <div className="flex items-center gap-2.5 mb-2">
+              <CircularProgress size={18} thickness={4} sx={{ color: '#2B2644', flexShrink: 0 }} />
+              <span className="text-[#2B2644] text-[13px] font-medium">{zkStageLabel}</span>
+            </div>
+            <LinearProgress sx={{ borderRadius: 1, bgcolor: '#e8e6f0', '& .MuiLinearProgress-bar': { bgcolor: '#2B2644' } }} />
+            <p className="text-black/35 text-[11px] mt-2">ZK proof generation runs locally — your private key never leaves this device.</p>
+          </div>
         )}
 
-        {/* Error State */}
+        {/* Error */}
         {errorMsg && (
           <Alert
             severity="error"
-            sx={{ mb: 2.5, bgcolor: '#180e0e', color: '#f87171', border: '1px solid #3b1212', borderRadius: '10px' }}
+            sx={{ mb: 3, bgcolor: '#fff5f5', color: '#c53030', border: '1px solid #fed7d7', borderRadius: '12px' }}
             onClose={() => setErrorMsg('')}
           >
             {errorMsg}
           </Alert>
         )}
 
-        {/* Success State */}
+        {/* Success */}
         {actionMessage && !errorMsg && !isSubmitting && (
-          <Alert severity="success" sx={{ mb: 2.5, bgcolor: '#0a1a10', color: '#4ade80', border: '1px solid #14532d', borderRadius: '10px' }}>
+          <Alert
+            severity="success"
+            sx={{ mb: 3, bgcolor: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', borderRadius: '12px' }}
+          >
             {actionMessage}
           </Alert>
         )}
 
-        {/* Issuance Form when UNINITIALIZED */}
+        {/* ── Issue Form (UNINITIALIZED) ─────────────────── */}
         {isUninit && (
-          <Box sx={{ bgcolor: '#121216', p: { xs: 2.5, sm: 3.5 }, borderRadius: '12px', border: '1px solid #27272a' }}>
-            <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>Issue Verifiable Credential</Typography>
-            <Typography variant="body2" sx={{ color: '#a1a1aa', mb: 3 }}>
-              Create and bind a verifiable credential on the Midnight chain. The issuer&apos;s <strong>secretKey</strong> is committed via ZK hash — never exposed publicly.
-            </Typography>
+          <div className="bg-[#F5F5F5] rounded-xl border border-black/[0.06] p-5 sm:p-6">
+            <div className="text-black text-[15px] font-medium mb-1">Issue Verifiable Credential</div>
+            <p className="text-black/50 text-[13px] leading-relaxed mb-4">
+              Create and bind a verifiable credential on the Midnight chain. The issuer&apos;s{' '}
+              <strong>secretKey</strong> is committed via ZK hash — never exposed publicly.
+            </p>
 
             <TextField
               fullWidth
@@ -319,111 +282,103 @@ export const CredShieldCard: React.FC<CredShieldCardProps> = ({
               sx={{
                 mb: 3,
                 '& .MuiOutlinedInput-root': {
-                  color: '#fff',
-                  bgcolor: '#09090c',
+                  color: '#000',
+                  bgcolor: '#ffffff',
                   borderRadius: '10px',
-                  '& fieldset': { borderColor: '#27272a' },
-                  '&:hover fieldset': { borderColor: '#52525b' },
-                  '&.Mui-focused fieldset': { borderColor: '#ffffff' },
+                  '& fieldset': { borderColor: 'rgba(0,0,0,0.12)' },
+                  '&:hover fieldset': { borderColor: 'rgba(0,0,0,0.25)' },
+                  '&.Mui-focused fieldset': { borderColor: '#2B2644' },
                 },
-                '& .MuiInputLabel-root': { color: '#a1a1aa' },
-                '& .MuiInputLabel-root.Mui-focused': { color: '#ffffff' },
+                '& .MuiInputLabel-root': { color: 'rgba(0,0,0,0.4)' },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#2B2644' },
               }}
             />
 
-            <Button
-              variant="contained"
-              sx={{ bgcolor: '#ffffff', color: '#000000', fontWeight: 800, px: 3.5, py: 1.4, borderRadius: '10px', '&:hover': { bgcolor: '#e4e4e7' }, '&.Mui-disabled': { bgcolor: '#27272a', color: '#52525b' } }}
+            <button
               onClick={handleIssueCredential}
               disabled={isSubmitting || !titleInput.trim()}
+              className="flex items-center gap-2 bg-[#2B2644] text-white rounded-xl px-5 py-2.5 text-[13px] font-medium hover:bg-[#3d3560] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Generating ZK Proof…' : 'Issue Credential (ZK Commitment)'}
-            </Button>
-          </Box>
+            </button>
+          </div>
         )}
 
-        {/* Details & Private Verification when ACTIVE or REVOKED */}
+        {/* ── Details & Verification (ACTIVE / REVOKED) ──── */}
         {(isActive || isRevoked) && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2.5 }}>Credential On-Chain State & Verification</Typography>
+          <div className="mt-2">
+            <div className="text-black text-[15px] font-medium mb-4">Credential On-Chain State & Verification</div>
 
-            <Stack spacing={2} sx={{ mb: 3 }}>
-              <Box sx={{ p: 2.5, bgcolor: '#121216', borderRadius: '12px', border: '1px solid #18181b' }}>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-                  <Typography variant="caption" sx={{ color: '#a1a1aa' }}>CREDENTIAL ID (HASHED):</Typography>
-                  <Chip label="PUBLIC" size="small" sx={{ bgcolor: '#18181b', color: '#71717a', fontSize: '0.6rem', height: 18 }} />
-                </Stack>
-                <Typography variant="body2" sx={{ color: '#ffffff', fontFamily: 'monospace', wordBreak: 'break-all', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
-                  {derivedState?.credentialId}
-                </Typography>
-              </Box>
+            <div className="flex flex-col gap-3 mb-5">
+              {/* Credential ID */}
+              <div className="p-3.5 bg-[#F5F5F5] rounded-xl border border-black/[0.06]">
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                  <span className="text-black/40 text-[10px] tracking-widest uppercase font-medium">Credential ID (Hashed):</span>
+                  <span className="px-1.5 py-0.5 rounded bg-[#2B2644]/8 text-[#2B2644] text-[10px] font-medium">PUBLIC</span>
+                </div>
+                <code className="text-black/70 text-[11px] sm:text-[12px] font-mono break-all">{derivedState?.credentialId}</code>
+              </div>
 
-              <Box sx={{ p: 2.5, bgcolor: '#121216', borderRadius: '12px', border: '1px solid #18181b' }}>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-                  <Typography variant="caption" sx={{ color: '#a1a1aa' }}>ISSUER AUTHORITY COMMITMENT:</Typography>
-                  <Chip label="PUBLIC (one-way hash)" size="small" sx={{ bgcolor: '#18181b', color: '#71717a', fontSize: '0.6rem', height: 18 }} />
-                </Stack>
-                <Typography variant="body2" sx={{ color: '#ffffff', fontFamily: 'monospace', wordBreak: 'break-all', fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
-                  {derivedState?.issuerAuthority}
-                </Typography>
-              </Box>
+              {/* Issuer Authority */}
+              <div className="p-3.5 bg-[#F5F5F5] rounded-xl border border-black/[0.06]">
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                  <span className="text-black/40 text-[10px] tracking-widest uppercase font-medium">Issuer Authority Commitment:</span>
+                  <span className="px-1.5 py-0.5 rounded bg-[#2B2644]/8 text-[#2B2644] text-[10px] font-medium">PUBLIC (one-way hash)</span>
+                </div>
+                <code className="text-black/70 text-[11px] sm:text-[12px] font-mono break-all">{derivedState?.issuerAuthority}</code>
+              </div>
 
-              <Box sx={{ p: 2, bgcolor: '#0d1117', borderRadius: '10px', border: '1px solid #27272a' }}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <LockIcon sx={{ fontSize: 14, color: '#e5c158' }} />
-                  <Typography variant="caption" sx={{ color: '#a1a1aa' }}>
-                    <strong style={{ color: '#e5c158' }}>secretKey:</strong> PRIVATE WITNESS — exists only in local memory, proven via ZK hash, never transmitted
-                  </Typography>
-                </Stack>
-              </Box>
-            </Stack>
+              {/* Secret key note */}
+              <div className="p-3 bg-[#2B2644]/5 rounded-xl border border-[#2B2644]/12 flex items-center gap-2">
+                <Lock className="w-3.5 h-3.5 text-[#2B2644] shrink-0" strokeWidth={2} />
+                <span className="text-black/55 text-[11px] leading-relaxed">
+                  <span className="text-[#2B2644] font-medium">secretKey:</span> PRIVATE WITNESS — exists only in local memory, proven via ZK hash, never transmitted
+                </span>
+              </div>
+            </div>
 
-            <Divider sx={{ my: 2.5, borderColor: '#18181b' }} />
+            <div className="h-px bg-black/[0.06] mb-4" />
 
-            <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              sx={{ justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 3, gap: 1 }}
-            >
-              <Typography variant="body2" sx={{ color: '#a1a1aa' }}>
-                Total Verified Off-Chain: <strong style={{ color: '#ffffff' }}>{totalVerified}</strong> | Total Issued: <strong style={{ color: '#ffffff' }}>{totalIssued}</strong>
-              </Typography>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <span className="text-black/50 text-[13px]">
+                Total Verified Off-Chain: <strong className="text-black">{totalVerified}</strong> | Total Issued: <strong className="text-black">{totalIssued}</strong>
+              </span>
               {derivedState?.isIssuer && (
-                <Chip label="AUTHORIZED ISSUER" size="small" sx={{ bgcolor: '#ffffff15', color: '#ffffff', border: '1px solid #ffffff30', fontWeight: 700, fontSize: '0.65rem' }} />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#2B2644]/8 border border-[#2B2644]/15 text-[#2B2644] text-[11px] font-medium">
+                  <CheckCircle className="w-3 h-3" strokeWidth={2} />
+                  AUTHORIZED ISSUER
+                </span>
               )}
-            </Stack>
+            </div>
 
             {isActive && (
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  size="large"
-                  startIcon={isSubmitting ? <CircularProgress size={16} sx={{ color: '#000' }} /> : <SecurityIcon />}
-                  sx={{ bgcolor: '#ffffff', color: '#000000', fontWeight: 800, py: 1.6, '&:hover': { bgcolor: '#e4e4e7' }, '&.Mui-disabled': { bgcolor: '#27272a', color: '#52525b' } }}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
                   onClick={handleVerifyCredential}
                   disabled={isSubmitting}
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#2B2644] text-white rounded-xl px-5 py-3 text-[14px] font-medium hover:bg-[#3d3560] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Generating ZK Proof…' : 'Verify Ownership (ZK Circuit)'}
-                </Button>
+                  {isSubmitting
+                    ? <><CircularProgress size={16} sx={{ color: '#fff' }} /> Generating ZK Proof…</>
+                    : <><CheckCircle className="w-4 h-4" strokeWidth={2} /> Verify Ownership (ZK Circuit)</>
+                  }
+                </button>
 
                 {derivedState?.isIssuer && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="large"
-                    startIcon={<BlockIcon />}
-                    sx={{ borderColor: '#7f1d1d', color: '#ef4444', fontWeight: 700, py: 1.6, '&:hover': { borderColor: '#ef4444', bgcolor: 'rgba(239,68,68,0.1)' }, '&.Mui-disabled': { borderColor: '#3b1212', color: '#7f1d1d' } }}
+                  <button
                     onClick={handleRevokeCredential}
                     disabled={isSubmitting}
+                    className="flex items-center justify-center gap-2 border-2 border-red-200 text-red-600 rounded-xl px-5 py-3 text-[14px] font-medium hover:border-red-400 hover:bg-red-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
+                    <Ban className="w-4 h-4" strokeWidth={2} />
                     Revoke Credential
-                  </Button>
+                  </button>
                 )}
-              </Stack>
+              </div>
             )}
-          </Box>
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

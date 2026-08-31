@@ -1,18 +1,19 @@
 ---
-name: Documentation improvement
-about: Report a problem with the documentation
-title: ""
-labels: example-bboard, public
+name: Documentation Improvement
+about: Suggest a correction or addition to the CredShield docs
+title: "[DOCS] "
+labels: documentation
 assignees: ""
 ---
 
-Documentation Improvement: Clearly describe the improvement requested for existing content and/or raise missing areas of documentation and provide details for what should be included.
+## What documentation needs improvement?
 
-#### Documentation url: Specify the exact location of the documentation you are referencing.
+<!-- Link the file or section, e.g. README.md → Privacy Model section -->
 
-#### Description of Improvement: Provide a detailed description of the requested improvement.
+## What is missing or incorrect?
 
-#### Proposed Solution (Optional):
+<!-- Describe the gap or error -->
 
-If you have specific suggestions for how to implement the improvement, provide them here.
-This could include suggested wording, code snippets, or structural changes
+## Suggested improvement
+
+<!-- What should it say instead? You can paste a draft here -->
